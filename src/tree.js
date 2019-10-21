@@ -17,7 +17,7 @@ NodeGraph.Tree = class
 
 		this.nodes = [];
 		this.connections = [];
-		this.camera = new Camera();
+		this.camera = new NodeGraph.Camera();
 	}
 
 	/*
@@ -55,7 +55,7 @@ NodeGraph.Tree = class
 		if (!this.contains(node1) || !this.contains(node2))
 			throw "Connection is broken!";
 
-		let connection = new Connection(node1, outputPlug, node2, inputPlug);
+		let connection = new NodeGraph.Connection(node1, outputPlug, node2, inputPlug);
 		this.connections.push(connection);
 
 		return connection;
@@ -70,7 +70,7 @@ NodeGraph.Tree = class
 	 */
 	contains(node)
 	{
-		if (node instanceof Connection)
+		if (node instanceof NodeGraph.Connection)
 			return this.connections.indexOf(connection) != -1;
 
 		return this.nodes.indexOf(node) != -1;

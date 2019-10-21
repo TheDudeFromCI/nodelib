@@ -15,19 +15,13 @@ NodeGraph.Node = class
 	 * type -
 	 *     The type of this node, used for API purposes. Defaults to null.
 	 */
-	constructor(name, position, type = null)
+	constructor(tree, name, position, type = null)
 	{
+		this.tree = tree;
 		this.name = name;
-		this.x = x;
-		this.y = y;
-		this.xSmooth = this.x;
-		this.ySmooth = this.y;
-		this.xNoDrag = this.x;
-		this.yNoDrag = this.y;
 
-		this.selected = false;
-		this.hover = false;
-		this.snapTo = null;
+		this.position = position;
+		this.posSmooth = position.copy();
 	}
 
 	draw(ctx, camera)
@@ -50,8 +44,10 @@ NodeGraph.Node = class
 		ctx.fillText(this.name, x0, y0);
 	}
 
-	parent()
+	parents()
 	{
+		for (tree.)
+
 		for (let i = 0; i < tree.connections.length; i++)
 		{
 			if (tree.connections[i].node2 === this)
