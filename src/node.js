@@ -6,8 +6,11 @@
 NodeGraph.Node = class
 {
 	/*
-	 * Creates a new node object.
+	 * Creates a new node object. This should be called internally only. Please
+	 * use "tree.addNode(...)" instead.
 	 *
+	 * tree -
+	 *     The tree which owns this node.
 	 * name -
 	 *     The name of the node.
 	 * position -
@@ -36,11 +39,12 @@ NodeGraph.Node = class
 	{
 		let list = [];
 
-		tree.findConnections(node2 = this)
+		let ref = this;
+		tree.findConnections({node2: ref})
 			.forEach(connection =>
 		{
-			if (list.indexOf(connection.node1) == -1)
-				list.push(connection.node1);
+			if (list.indexOf(connection.outputPlug.node) == -1)
+				list.push(connection.outputPlug.node);
 		});
 
 		return list;
@@ -55,11 +59,12 @@ NodeGraph.Node = class
 	{
 		let list = [];
 
-		tree.findConnections(node1 = this)
+		let ref = this;
+		tree.findConnections({node1: ref})
 			.forEach(connection =>
 		{
-			if (list.indexOf(connection.node2) == -1)
-				list.push(connection.node2);
+			if (list.indexOf(connection.inputPlug.node) == -1)
+				list.push(connection.inputPlug.node);
 		});
 
 		return list;

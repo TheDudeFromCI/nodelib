@@ -8,11 +8,15 @@ NodeGraph.Tree = class
 	 * Creates a new tree object. This tree will also create its own camera
 	 * object.
 	 *
+	 * element -
+	 *     The element this tree should be attached to. This element should be
+	 *     a div and will become the tree object.
 	 * theme -
 	 *     The look and feel of this node graph tree.
 	 */
-	constructor(theme)
+	constructor(element, theme)
 	{
+		this.element = element;
 		this.theme = theme;
 
 		this.nodes = [];
@@ -21,18 +25,22 @@ NodeGraph.Tree = class
 	}
 
 	/*
-	 * Adds a node to this node graph tree. Does nothing if the node is already
-	 * within this tree.
+	 * Adds a node to this node graph tree. This will create a new node object
+	 * with the given properties. Returns the newly created node.
 	 *
-	 * node -
-	 *     The node to add.
+	 * name -
+	 *     The name of the node.
+	 * position -
+	 *     The initial position of the node. Defaults to (0, 0) in world space.
+	 * type -
+	 *     The type of this node, used for API purposes. Defaults to null.
 	 */
-	addNode(node)
+	addNode(name, position = new NodeGraph.Position(0, 0), type = null)
 	{
-		if (this.contains(node))
-			return;
-
+		let node = new NodeGraph.Node(this, name, position, type);
 		this.nodes.push(node);
+
+		return node;
 	}
 
 	/*
@@ -157,7 +165,7 @@ NodeGraph.Tree = class
 	 * inputPlug -
 	 *     The plug recieveing the connection.
 	 */
-	findConnections(node1 = null, node2 = null, outputPlug = null, inputPlug = null)
+	findConnections({node1 = null, node2 = null, outputPlug = null, inputPlug = null})
 	{
 		let list = [];
 
@@ -165,10 +173,10 @@ NodeGraph.Tree = class
 		{
 			let connection = this.connections[i];
 
-			if (node1 != null && connection.node1 !== node1)
+			if (node1 != null && connection.outputPlug.node !== node1)
 				continue;
 
-			if (node2 != null && connection.node2 !== node2)
+			if (node2 != null && connection.inputPlug.node !== node2)
 				continue;
 
 			if (outputPlug != null && connection.outputPlug !== outputPlug)

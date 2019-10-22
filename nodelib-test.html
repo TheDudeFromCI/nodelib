@@ -24,17 +24,24 @@
 		<script>
 			function onLoad()
 			{
+				let div = document.getElementById('node-canvas');
+
 				theme = new NodeGraph.Theme();
-				tree = new NodeGraph.Tree(theme);
+				tree = new NodeGraph.Tree(div, theme);
+
+				let node1 = tree.addNode('Node1', new NodeGraph.Position(300, 300));
+				let out1 = node1.addOutput();
+
+				let node2 = tree.addNode('Node2', new NodeGraph.Position(350, 800));
+				let in1 = node2.addInput();
+
+				tree.addConnection(out1, in1);
 			}
 		</script>
 	</header>
 	
 	<body onload="onLoad()">
 		<div id="node-canvas">
-			<canvas id="node-tree-canvas">
-				Your browser does not support HTML5 canvas, and is unable to view this web application. We recommend using Firefox or Chrome with JavaScript enabled.
-			</canvas>
 		</div>
 	</body>
 </html>

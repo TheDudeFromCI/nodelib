@@ -48,7 +48,7 @@ NodeGraph.Plug = class
 		if (this.node.tree !== plug.node.tree)
 			return false;
 
-		if (this.node.tree.findConnections(inputPlug = plug).length > 0)
+		if (this.node.tree.findConnections({inputPlug: plug}).length > 0)
 			return false;
 
 		if (this.node.isAncestorOf(plug.node))
