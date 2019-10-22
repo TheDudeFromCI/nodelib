@@ -37,25 +37,21 @@ NodeGraph.Tree = class
 
 	/*
 	 * Adds a connection to this tree. An error is thrown if the connection
-	 * points to nodes which do not exist, or are not part of this tree. An
-	 * error is thrown if this action creates a circular dependency. Returns
-	 * the newly created connection object.
+	 * is not considered valid, or contains nodes which do not exist within this
+	 * tree. Returns the newly created connection object.
 	 *
-	 * node1 -
-	 *     The node sending the output connection.
 	 * outputPlug -
-	 *     The plug, belonging to node1, which is sending the connection.
-	 * node2 -
-	 *     The node recieving the input connection.
+	 *     The plug which is sending the connection.
 	 * inputPlug -
-	 *     The plug, belonging to node2, which is recieving the connection.
+	 *     The plug which is recieving the connection.
 	 */
-	addConnection(node1, outputPlug, node2, inputPlug)
+	addConnection(outputPlug,  inputPlug)
 	{
-		if (!this.contains(node1) || !this.contains(node2))
-			throw "Connection is broken!";
+		let connection = new NodeGraph.Connection(outputPlug, inputPlug);
 
-		let connection = new NodeGraph.Connection(node1, outputPlug, node2, inputPlug);
+		if (!this.contains(outputPlug.node))
+			throw "Connection exists outside of tree!";
+
 		this.connections.push(connection);
 
 		return connection;

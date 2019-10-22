@@ -1,37 +1,23 @@
+/*
+ * A connection represents a relationship between two nodes, and two plugs
+ * for those nodes. A connection may exist by connecting the output plug of
+ * one node to the input plug of another node.
+ */
 NodeGraph.Connection = class
 {
-	constructor(node1, node2)
+	/*
+	 * Creates a new connection object. An error is thrown if the connection
+	 * is considered invalid by the given plugs, or if either plug is null.
+	 */
+	constructor(outputPlug, inputPlug)
 	{
-		this.node1 = node1;
-		this.node2 = node2;
+		if (outputPlug == null || inputPlug == null)
+			throw "Cannot create a connection using null plugs!";
 
-		this.color = 'orange';
-	}
+		if (!outputPlug.canConnectTo(inputPlug))
+			throw "A connection is not valid here!";
 
-	draw(ctx, camera)
-	{
-		let buf = CONNECTION_EDGE_BUFFER * camera.zoomSmooth;
-		let corn = CONNECTION_CORNER_DISTANCE * camera.zoomSmooth;
-
-		let x0 = this.node1.xNoDrag;
-		let y0 = this.node1.yNoDrag;
-		let x1 = this.node2.xNoDrag;
-		let y1 = this.node2.yNoDrag;
-
-		x0 = camera.camX(x0) + ctx.measureText(this.node1.name).width + buf;
-		y0 = camera.camY(y0);
-		x1 = camera.camX(x1) - buf;
-		y1 = camera.camY(y1);
-
-		ctx.strokeStyle = this.color;
-		ctx.beginPath();
-		ctx.lineWidth = CONNECTION_WIDTH * camera.zoomSmooth;
-		ctx.moveTo(x0, y0);
-
-		ctx.lineTo(x1 - corn, y0);
-		ctx.lineTo(x1 - corn, y1);
-		ctx.lineTo(x1, y1);
-
-		ctx.stroke();
+		this.outputPlug = outputPlug;
+		this.inputPlug = inputPlug;
 	}
 }
