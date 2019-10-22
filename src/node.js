@@ -22,6 +22,8 @@ NodeGraph.Node = class
 
 		this.position = position;
 		this.posSmooth = position.copy();
+		this.inputPlugs = [];
+		this.outputPlugs = [];
 
 		this.dragging = false;
 	}
@@ -63,6 +65,19 @@ NodeGraph.Node = class
 		return list;
 	}
 
+	isAncestorOf(node)
+	{
+		if (this === node)
+			return true;
+
+		let children = this.children();
+		for (let i = 0; i < children.length; i++)
+			if (children[i].isAncestorOf(node))
+				return true;
+
+		return false;
+	}
+
 	/*
 	 * Updates this node's position to match the target.
 	 *
@@ -87,5 +102,41 @@ NodeGraph.Node = class
 	{
 		return Math.abs(this.x - this.xSmooth) + Math.abs(this.y - this.ySmooth)
 			+ Math.abs(this.x - this.xNoDrag) + Math.abs(this.y - this.yNoDrag) > 0.01;
+	}
+
+	/*
+	 * Creates a new input plug for this node and attaches it. Returns the
+	 * newly created plug.
+	 *
+	 * name -
+	 *     The name of the new plug. Defaults to an empty string.
+	 * type -
+	 *     The type of the plug. Defaults to null. See NodeGraph.Plug for
+	 *     for information.
+	 */
+	addInput(name = '', type = null)
+	{
+		let plug = new NodeGraph.Plug(this, true, name, type);
+		this.inputPlugs.push(plug);
+
+		return plug;
+	}
+
+	/*
+	 * Creates a new output plug for this node and attaches it. Returns the
+	 * newly created plug.
+	 *
+	 * name -
+	 *     The name of the new plug. Defaults to an empty string.
+	 * type -
+	 *     The type of the plug. Defaults to null. See NodeGraph.Plug for
+	 *     for information.
+	 */
+	addOutput(name = '', type = null)
+	{
+		let plug = new NodeGraph.Plug(this, false, name, type);
+		this.outputPlugs.push(plug);
+
+		return plug;
 	}
 }

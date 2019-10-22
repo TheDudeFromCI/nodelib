@@ -11,17 +11,22 @@ NodeGraph.Position = class
 	 *     The X coord.
 	 * y -
 	 *     The Y coord.
+	 * worldSpace -
+	 *     Whether this position is in world space or screen space. True for
+	 *     world space, false for screen space. Defaults to true.
 	 */
-	constructor(x, y)
+	constructor(x, y, worldSpace = true)
 	{
 		this.x = x;
 		this.y = y;
+		this.worldSpace = worldSpace;
 	}
 
 	/*
-	 * Converts this position into a world space position, assuming this position
+	 * Converts this position into a world space position, if this position
 	 * represents a screen space position. This function returns a new position
-	 * object with the converted coordinates.
+	 * object with the converted coordinates. If this position is already in
+	 * world space, a copy of this position is returned.
 	 *
 	 * camera -
 	 *     The camera to use when converting.
@@ -30,16 +35,21 @@ NodeGraph.Position = class
 	{
 		let pos = new NodeGraph.Position(this.x, this.y);
 
-		pos.x = (pos.x + camera.xSmooth) / camera.zoomSmooth;
-		pos.y = (pos.y + camera.ySmooth) / camera.zoomSmooth;
+		if (!this.worldSpace)
+		{
+			pos.x = (pos.x + camera.xSmooth) / camera.zoomSmooth;
+			pos.y = (pos.y + camera.ySmooth) / camera.zoomSmooth;
+
+		}
 
 		return pos;
 	}
 
 	/*
-	 * Converts this position into a screen space position, assuming this
-	 * position represents a world space position. This function returns a new
-	 * position object with the converted coordinates.
+	 * Converts this position into a screen space position, if this position
+	 * represents a world space position. This function returns a new position
+	 * object with the converted coordinates. If this position is already in
+	 * screen space, a copy of this position is returned.
 	 *
 	 * camera -
 	 *     The camera to use when converting.
@@ -48,8 +58,11 @@ NodeGraph.Position = class
 	{
 		let pos = new NodeGraph.Position(this.x, this.y);
 
-		pos.x = pos.x * camera.zoomSmooth - camera.xSmooth;
-		pos.y = pos.y * camera.zoomSmooth - camera.ySmooth;
+		if (this.worldSpace)
+		{
+			pos.x = pos.x * camera.zoomSmooth - camera.xSmooth;
+			pos.y = pos.y * camera.zoomSmooth - camera.ySmooth;
+		}
 
 		return pos;
 	}
