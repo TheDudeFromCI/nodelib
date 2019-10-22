@@ -22,97 +22,70 @@ NodeGraph.Node = class
 
 		this.position = position;
 		this.posSmooth = position.copy();
+
+		this.dragging = false;
 	}
 
-	draw(ctx, camera)
-	{
-		let x0, y0;
-		if (dragging && this.selected && this.snapTo != null)
-		{
-			x0 = camera.camX(this.snapTo.xSmooth + this.snapTo.width() + CONNECTION_EDGE_BUFFER * 2);
-			y0 = camera.camY(this.snapTo.ySmooth);
-
-			ctx.font = (FONT_SIZE * tree.camera.zoomSmooth) + 'px Calibri';
-		}
-		else
-		{
-			x0 = camera.camX(this.xSmooth);
-			y0 = camera.camY(this.ySmooth);
-		}
-
-		ctx.fillStyle = '#aaaaaa';
-		ctx.fillText(this.name, x0, y0);
-	}
-
+	/*
+	 * Gets a list of all parent nodes for this node. This is all nodes
+	 * which have an outgoing connection to this node.
+	 */
 	parents()
-	{
-		for (tree.)
-
-		for (let i = 0; i < tree.connections.length; i++)
-		{
-			if (tree.connections[i].node2 === this)
-				return tree.connections[i].node1;
-		}
-
-		return null;
-	}
-
-	children()
 	{
 		let list = [];
 
-		for (let i = 0; i < tree.connections.length; i++)
+		tree.findConnections(node2 = this)
+			.forEach(connection =>
 		{
-			if (tree.connections[i].node1 === this)
-				list.push(tree.connections[i].node2);
-		}
+			if (list.indexOf(connection.node1) == -1)
+				list.push(connection.node1);
+		});
 
 		return list;
 	}
 
+
+	/*
+	 * Gets a list of all child nodes for this node. This is all nodes which
+	 * have an incoming connection from this node.
+	 */
+	children()
+	{
+		let list = [];
+
+		tree.findConnections(node1 = this)
+			.forEach(connection =>
+		{
+			if (list.indexOf(connection.node2) == -1)
+				list.push(connection.node2);
+		});
+
+		return list;
+	}
+
+	/*
+	 * Updates this node's position to match the target.
+	 *
+	 * delta -
+	 *     The time in seconds since the last update.
+	 */
 	update(delta)
 	{
-		delta = this.clamp(delta / NODE_SMOOTHING, 0, 1);
+		delta = delta / this.tree.theme.nodeSmoothing;
 
-		this.xNoDrag = this.lerp(this.xNoDrag, this.x, delta);
-		this.yNoDrag = this.lerp(this.yNoDrag, this.y, delta);
-
-		if (dragging && this.selected)
-			return;
-
-		this.xSmooth = this.lerp(this.xSmooth, this.x, delta);
-		this.ySmooth = this.lerp(this.ySmooth, this.y, delta);
+		if (!dragging)
+			this.posSmooth.lerpTo(this.position, delta);
 	}
 
-	lerp(a, b, t)
-	{
-		return a * (1 - t) + b * t;
-	}
-
-	clamp(x, min, max)
-	{
-		return Math.min(Math.max(x, min), max);
-	}
-
+	/*
+	 * Checks if this node needs to be updated or not. If false, the node
+	 * will move to little for the rendered image to be effected. (less than
+	 * 1/10th of a pixel.) Returns true if the node should be updated and
+	 * rerendered. False otherwise.
+	 */
 	needsUpdate()
 	{
 		return Math.abs(this.x - this.xSmooth) + Math.abs(this.y - this.ySmooth)
 			+ Math.abs(this.x - this.xNoDrag) + Math.abs(this.y - this.yNoDrag) > 0.01;
-	}
-
-	width()
-	{
-		let canvas = document.getElementById("tech-tree-canvas");
-		let ctx = canvas.getContext("2d");
-		ctx.font = FONT_SIZE + 'px Calibri';
-		return ctx.measureText(this.name).width;
-	}
-
-	screenWidth()
-	{
-		let canvas = document.getElementById("tech-tree-canvas");
-		let ctx = canvas.getContext("2d");
-		ctx.font = (FONT_SIZE * tree.camera.zoomSmooth) + 'px Calibri';
-		return ctx.measureText(this.name).width;
 	}
 }
