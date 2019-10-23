@@ -22,6 +22,15 @@ NodeGraph.Connection = class
 		this.inputPlug = inputPlug;
 	}
 
+	get connectionColor()
+	{
+		if (this.outputPlug.type == null
+			|| this.outputPlug.type.connectionColor == null)
+			return this.tree.theme.connectionColor;
+
+		return this.outputPlug.type.connectionColor;
+	}
+
 	/*
 	 * Renders this connection to a canvas. This function should only be
 	 * called internally.
@@ -29,8 +38,8 @@ NodeGraph.Connection = class
 	render(ctx)
 	{
 		ctx.lineWidth = this.tree.theme.connectionWidth;
-		ctx.strokeStyle = this.tree.theme.connectionColor;
-		
+		ctx.strokeStyle = this.connectionColor;
+
 		this.tree.theme.connectionStyle(this.outputPlug, this.inputPlug, ctx,
 			this.tree.camera);
 	}
