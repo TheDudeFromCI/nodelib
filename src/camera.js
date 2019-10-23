@@ -31,11 +31,13 @@ NodeGraph.Camera = class
 	 */
 	update(delta)
 	{
+		let lerp = NodeGraph.Utils.lerp;
+
 		delta = delta / this.theme.cameraSmoothing;
 
-		this.xSmooth = Utils.lerp(this.xSmooth, this.x, delta);
-		this.ySmooth = Utils.lerp(this.ySmooth, this.y, delta);
-		this.zoomSmooth = Utils.lerp(this.zoomSmooth, this.zoom, delta);
+		this.xSmooth = lerp(this.xSmooth, this.x, delta);
+		this.ySmooth = lerp(this.ySmooth, this.y, delta);
+		this.zoomSmooth = lerp(this.zoomSmooth, this.zoom, delta);
 	}
 
 	/*

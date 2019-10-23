@@ -21,7 +21,23 @@ NodeGraph.Tree = class
 
 		this.nodes = [];
 		this.connections = [];
-		this.camera = new NodeGraph.Camera();
+		this.camera = new NodeGraph.Camera(theme);
+
+		this.lastFrame = 0;
+		this.repaint = false;
+
+		requestAnimationFrame(time => this.animation(time));
+	}
+
+	animation(time)
+	{
+		let delta = (time - this.lastFrame) / 1000.0;
+		this.lastFrame = time;
+
+		if (this.needsUpdate())
+			this.update(delta);
+
+		requestAnimationFrame(time => this.animation(time));
 	}
 
 	/*
@@ -104,6 +120,8 @@ NodeGraph.Tree = class
 		}
 
 		this.nodes.splice(nodeIndex, 1);
+
+		this.element.removeChild(node.element);
 	}
 
 	/*
@@ -129,6 +147,8 @@ NodeGraph.Tree = class
 	 */
 	update(delta)
 	{
+		this.repaint = false;
+
 		this.camera.update(delta);
 
 		for (let i = 0; i < this.nodes.length; i++)
@@ -142,6 +162,9 @@ NodeGraph.Tree = class
 	 */
 	needsUpdate()
 	{
+		if (this.repaint)
+			return true;
+
 		if(this.camera.needsUpdate())
 			return true;
 

@@ -98,9 +98,20 @@ NodeGraph.Position = class
 	 */
 	distanceTo(pos)
 	{
+		return Math.sqrt(this.distanceSquared(pos));
+	}
+
+	/*
+	 * Calculates the distance squared between this point and another point.
+	 * 
+	 * pos -
+	 *     The other point.
+	 */
+	distanceSquared(pos)
+	{
 		let dx = this.x - pos.x;
 		let dy = this.y - pos.y;
 
-		return Math.sqrt(dx * dx + dy * dy);
+		return dx * dx + dy * dy;
 	}
 }

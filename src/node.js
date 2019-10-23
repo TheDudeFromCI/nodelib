@@ -29,6 +29,36 @@ NodeGraph.Node = class
 		this.outputPlugs = [];
 
 		this.dragging = false;
+
+		this.element = document.createElement('div');
+		this.element.classList.add('nodegraph-node');
+		tree.element.appendChild(this.element);
+
+		this.nameElem = document.createElement('p');
+		this.nameElem.innerHTML = name;
+		this.element.appendChild(this.nameElem);
+
+		this.inputElem = document.createElement('div');
+		this.inputElem.classList.add('nodegraph-inputs');
+		this.element.appendChild(this.inputElem);
+
+		this.outputElem = document.createElement('div');
+		this.outputElem.classList.add('nodegraph-outputs');
+		this.element.appendChild(this.outputElem);
+
+		this.updatePos();
+	}
+
+	/*
+	 * An internal function which updates the position of the element on the
+	 * screen to match the internal position.
+	 */
+	updatePos()
+	{
+		let pos = this.posSmooth.toScreen(this.tree.camera);
+
+		this.element.style.left = pos.x + 'px';
+		this.element.style.top = pos.y + 'px';
 	}
 
 	/*
@@ -89,12 +119,14 @@ NodeGraph.Node = class
 	 * delta -
 	 *     The time in seconds since the last update.
 	 */
-	update(delta)
+	update(delta, force)
 	{
 		delta = delta / this.tree.theme.nodeSmoothing;
 
-		if (!dragging)
+		if (!this.dragging)
 			this.posSmooth.lerpTo(this.position, delta);
+
+		this.updatePos();
 	}
 
 	/*
@@ -105,8 +137,8 @@ NodeGraph.Node = class
 	 */
 	needsUpdate()
 	{
-		return Math.abs(this.x - this.xSmooth) + Math.abs(this.y - this.ySmooth)
-			+ Math.abs(this.x - this.xNoDrag) + Math.abs(this.y - this.yNoDrag) > 0.01;
+		return this.position.toScreen(this.tree.camera).distanceSquared(
+			this.posSmooth.toScreen(this.tree.camera)) > 1;
 	}
 
 	/*
@@ -123,6 +155,10 @@ NodeGraph.Node = class
 	{
 		let plug = new NodeGraph.Plug(this, true, name, type);
 		this.inputPlugs.push(plug);
+
+		let plugElem = document.createElement('div');
+		plugElem.classList.add('nodegraph-plug');
+		this.inputElem.appendChild(plugElem);
 
 		return plug;
 	}
@@ -141,6 +177,10 @@ NodeGraph.Node = class
 	{
 		let plug = new NodeGraph.Plug(this, false, name, type);
 		this.outputPlugs.push(plug);
+
+		let plugElem = document.createElement('div');
+		plugElem.classList.add('nodegraph-plug');
+		this.outputElem.appendChild(plugElem);
 
 		return plug;
 	}

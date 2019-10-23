@@ -4,10 +4,13 @@
 		<title>NodeLib Test</title>
 		<meta charset ="UTF-8"/>
 
+		<link rel="stylesheet" href="src/theme.css">
+
 		<style type="text/css">
 			#node-tree-canvas {
 				width: 50%;
 				height: 50%;
+				background-color: #CCCCCC;
 			}
 		</style>
 
@@ -29,10 +32,11 @@
 				theme = new NodeGraph.Theme();
 				tree = new NodeGraph.Tree(div, theme);
 
-				let node1 = tree.addNode('Node1', new NodeGraph.Position(300, 300));
+				let node1 = tree.addNode('Node1', new NodeGraph.Position(200, 300));
 				let out1 = node1.addOutput();
+				let out2 = node1.addOutput();
 
-				let node2 = tree.addNode('Node2', new NodeGraph.Position(350, 800));
+				let node2 = tree.addNode('Node2', new NodeGraph.Position(350, 500));
 				let in1 = node2.addInput();
 
 				tree.addConnection(out1, in1);
