@@ -259,6 +259,12 @@ NodeGraph.Node = class
 
 		ctx.lineWidth = this.tree.theme.nodeBorderThickness * zoom;
 		ctx.strokeRect(pos.x, pos.y, width, height);
+
+		for (let i = 0; i < this.inputPlugs.length; i++)
+			this.inputPlugs[i].render(ctx);
+
+		for (let i = 0; i < this.outputPlugs.length; i++)
+			this.outputPlugs[i].render(ctx);
 	}
 
 	/*
@@ -276,5 +282,14 @@ NodeGraph.Node = class
 
 		return x >= pos.x && x < pos.x + width && y >= pos.y
 			&& y < pos.y + height;
+	}
+
+	/*
+	 * Runs a function for all plugs, input and output, attached to this node.
+	 */
+	forEachPlug(run)
+	{
+		this.inputPlugs.forEach(run);
+		this.outputPlugs.forEach(run);
 	}
 }

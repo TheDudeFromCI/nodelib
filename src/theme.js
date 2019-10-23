@@ -54,7 +54,7 @@ NodeGraph.Theme = class
 		 * Assigns the radius for how large a plug should be rendered on a node.
 		 * This value is in world space.
 		 */
-		this.plugRadius = 5;
+		this.plugRadius = 8;
 
 		/*
 		 * When laying out plugs on a node, this is used to determine how close
@@ -62,7 +62,32 @@ NodeGraph.Theme = class
 		 * distance two plugs can be, counting from the center of one plug to the
 		 * center of the other. This value is in world space.
 		 */
-		this.plugSpacing = 8;
+		this.plugSpacing = 20;
+
+		/*
+		 * The size, in pixels, of the border for each plug. This value is in
+		 * world space.
+		 */
+		this.plugBorderSize = 3;
+
+		/*
+		 * The default background color for plugs. Can be overriden per plug by
+		 * assigning the "plugColor" property of a plug type.
+		 */
+		this.plugColor = '#777777';
+
+		/*
+		 * The default border color for plugs. Can be overriden per plug by
+		 * assigning the "plugBorderColor" property of a plug type.
+		 */
+		this.plugBorderColor = '#555555';
+
+		/*
+		 * The default border color for plugs when moused over. Can be overriden
+		 * per plug by assigning the "borderColorHighlight" property of a plug
+		 * type.
+		 */
+		this.plugBorderHighlight = '#999999';
 
 		/*
 		 * The fillstyle for the background. Note, using transparent colors has

@@ -27,6 +27,8 @@ NodeGraph.Plug = class
 		this.isInput = isInput;
 		this.name = name;
 		this.type = type;
+
+		this.hover = false;
 	}
 
 	/*
@@ -60,5 +62,114 @@ NodeGraph.Plug = class
 				return false;
 
 		return true;
+	}
+
+	/*
+	 * Gets the color of this plug, as determined by the plug type. If the plug
+	 * type is null, or does not have the "plugColor" property, the default
+	 * color is returned.
+	 */
+	get plugColor()
+	{
+		if (this.type == null || this.type.plugColor == null)
+			return this.node.tree.theme.plugColor;
+
+		return this.type.plugColor;
+	}
+
+	/*
+	 * Gets the border color of this plug, as determined by the plug type. If the
+	 * plug type is null, or does not have the "plugBorderColor" property, the
+	 * default color is returned.
+	 */
+	get plugBorderColor()
+	{
+		if (this.type == null || this.type.plugBorderColor == null)
+			return this.node.tree.theme.plugBorderColor;
+
+		return this.type.plugBorderColor;
+	}
+
+	/*
+	 * Gets the border color of this plug when moused over, as determined by the
+	 * plug type. If the plug type is null, or does not have the
+	 * "plugBorderHighlight" property, the default color is returned.
+	 */
+	get plugBorderHighlight()
+	{
+		if (this.type == null || this.type.plugBorderHighlight == null)
+			return this.node.tree.theme.plugBorderHighlight;
+
+		return this.type.plugBorderHighlight;
+	}
+
+	/*
+	 * Gets the x position of this plug in world space.
+	 */
+	get x()
+	{
+		if (this.isInput)
+			return this.node.posSmooth.x;
+
+		return this.node.posSmooth.x + this.node.width;
+	}
+
+	/*
+	 * Gets the y position of this plug in world space.
+	 */
+	get y()
+	{
+		let list = this.isInput ?
+			this.node.inputPlugs : this.node.outputPlugs;
+
+		return this.node.posSmooth.y
+			+ this.node.height / 2
+			+ (list.indexOf(this) + 1)
+			* this.node.tree.theme.plugSpacing
+			- (list.length + 1)
+			* this.node.tree.theme.plugSpacing / 2;
+	}
+
+	/*
+	 * Gets the x and y position of this plug as a position object, in world
+	 * space.
+	 */
+	get pos()
+	{
+		return new NodeGraph.Position(this.x, this.y);
+	}
+
+	/*
+	 * Checks if the given screen space position overlaps the bounds of this
+	 * plug.
+	 */
+	isInBounds(x, y)
+	{
+		let radius = this.node.tree.theme.plugRadius;
+		radius = radius * radius * this.node.tree.camera.zoomSmooth;
+
+		return this.pos.toScreen(this.node.tree.camera)
+			.distanceSquared(new NodeGraph.Position(x, y)) < radius;
+	}
+
+	render(ctx)
+	{
+		let zoom = this.node.tree.camera.zoomSmooth;
+		let radius = this.node.tree.theme.plugRadius * zoom;
+		let plugBorderSize = this.node.tree.theme.plugBorderSize * zoom;
+		let pos = this.pos.toScreen(this.node.tree.camera);
+
+		ctx.beginPath();
+		ctx.arc(pos.x, pos.y, radius, 2 * Math.PI, false);
+		ctx.fillStyle = this.plugColor;
+		ctx.fill();
+
+		if (this.hover)
+			ctx.strokeStyle = this.plugBorderHighlight;
+		else
+			ctx.strokeStyle = this.plugBorderColor;
+
+		ctx.lineWidth = plugBorderSize;
+		ctx.stroke();
 	}
 }

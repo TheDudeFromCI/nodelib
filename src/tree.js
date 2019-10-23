@@ -308,6 +308,20 @@ NodeGraph.Tree = class
 		{
 			let hover = node.isInBounds(x, y);
 
+			node.forEachPlug(plug =>
+			{
+				let h = plug.isInBounds(x, y);
+
+				if (h != plug.hover)
+				{
+					plug.hover = h;
+					this.repaint = true;
+				}
+
+				if (h)
+					hover = true;
+			});
+
 			if (hover != node.hover)
 			{
 				node.hover = hover;
@@ -367,7 +381,17 @@ NodeGraph.Tree = class
 			{
 				node.hover = false;
 				this.repaint = true;
+			
 			}
+
+			node.forEachPlug(plug =>
+			{
+				if (plug.hover)
+				{
+					plug.hover = false;
+					this.repaint = true;
+				}
+			});
 		});
 	}
 
