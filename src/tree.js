@@ -1,6 +1,7 @@
 /*
  * A tree is the core structure of a node graph. This is the graph itself which
- * holds all the nodes and connections to be rendered.
+ * holds all the nodes and connections to be rendered. This object wraps around
+ * a HTML5 canvas.
  */
 NodeGraph.Tree = class
 {
@@ -8,15 +9,16 @@ NodeGraph.Tree = class
 	 * Creates a new tree object. This tree will also create its own camera
 	 * object.
 	 *
-	 * element -
-	 *     The element this tree should be attached to. This element should be
-	 *     a div and will become the tree object.
+	 * canvas -
+	 *     The canvas this tree should be attached to. The tree object will be
+	 *     rendered to this object, using the bounds and resolution of this
+	 *     canvas.
 	 * theme -
 	 *     The look and feel of this node graph tree.
 	 */
-	constructor(element, theme)
+	constructor(canvas, theme)
 	{
-		this.element = element;
+		this.canvas = canvas;
 		this.theme = theme;
 
 		this.nodes = [];
@@ -26,9 +28,19 @@ NodeGraph.Tree = class
 		this.lastFrame = 0;
 		this.repaint = false;
 
+		canvas.addEventListener('mousedown', event => this.onMouseDown(event));
+		canvas.addEventListener('mousemove', event => this.onMouseMove(event));
+		canvas.addEventListener('mouseup', event => this.onMouseUp(event));
+		canvas.addEventListener('mouseout', event => this.onMouseExit(event));
+		canvas.addEventListener('mousewheel', event => this.onScroll(event), {passive:true});
+
 		requestAnimationFrame(time => this.animation(time));
 	}
 
+	/*
+	 * Animated a single frame to update all nodes within this tree. This method
+	 * should only be called internally.
+	 */
 	animation(time)
 	{
 		let delta = (time - this.lastFrame) / 1000.0;
@@ -38,6 +50,22 @@ NodeGraph.Tree = class
 			this.update(delta);
 
 		requestAnimationFrame(time => this.animation(time));
+	}
+
+	/*
+	 * Attempts to find the node in this tree with the given ID. If no existing
+	 * node is found, null is returned.
+	 *
+	 * id -
+	 *     The ID of the node.
+	 */
+	getNodeById(id)
+	{
+		for (let i = 0; i < this.nodes.length; i++)
+			if (this.nodes[i].id == id)
+				return this.nodes[i];
+
+		return null;
 	}
 
 	/*
@@ -153,6 +181,25 @@ NodeGraph.Tree = class
 
 		for (let i = 0; i < this.nodes.length; i++)
 			this.nodes[i].update(delta);
+
+		this.render();
+	}
+
+	/*
+	 * Renders the frame. This function is called internally by the update
+	 * function.
+	 */
+	render()
+	{
+		let width = this.canvas.width = this.canvas.clientWidth;
+		let height = this.canvas.height = this.canvas.clientHeight;
+		let ctx = this.canvas.getContext('2d');
+
+		ctx.fillStyle = this.theme.backgroundColor;
+		ctx.fillRect(0, 0, width, height);
+
+		for (let i = 0; i < this.nodes.length; i++)
+			this.nodes[i].render(ctx);
 	}
 
 	/*
@@ -212,5 +259,156 @@ NodeGraph.Tree = class
 		}
 
 		return list;
+	}
+
+	/*
+	 * An internal method called to handle mouse down events.
+	 */
+	onMouseDown(event)
+	{
+		let x = event.clientX;
+		let y = event.clientY;
+		this.lastMouseX = x;
+		this.lastMouseY = y;
+
+		this.cameraDrag = false;
+		this.nodes.forEach(node => node.dragging = false);
+
+		if (event.which == 1)
+		{
+			this.mouseDown = true;
+
+			this.nodes.forEach(node =>
+			{
+				let select = node.isInBounds(x, y);
+
+				if (event.shiftKey && node.select)
+					select = !select;
+
+				if (select != node.select)
+				{
+					node.select = select;
+					this.repaint = true;
+				}
+			});
+		}
+		else if (event.which == 2)
+			this.cameraDrag = true;
+	}
+
+	/*
+	 * An internal method called to handle mouse move events.
+	 */
+	onMouseMove(event)
+	{
+		let x = event.clientX;
+		let y = event.clientY;
+
+		this.nodes.forEach(node =>
+		{
+			let hover = node.isInBounds(x, y);
+
+			if (hover != node.hover)
+			{
+				node.hover = hover;
+				this.repaint = true;
+			}
+		});
+
+		if (this.mouseDown)
+		{
+			let dx = (x - this.lastMouseX) / this.camera.zoomSmooth;
+			let dy = (y - this.lastMouseY) / this.camera.zoomSmooth;
+
+			this.nodes.forEach(node =>
+			{
+				if (!node.select)
+					return;
+
+				node.dragging = true;
+				node.position.x += dx;
+				node.position.y += dy;
+			});
+		}
+
+		if (this.cameraDrag)
+		{
+			this.camera.x -= x - this.lastMouseX;
+			this.camera.y -= y - this.lastMouseY;
+		}
+
+		this.lastMouseX = x;
+		this.lastMouseY = y;
+	}
+
+	/*
+	 * An internal method called to handle mouse up events.
+	 */
+	onMouseUp(event)
+	{
+		this.mouseDown = false;
+		this.cameraDrag = false;
+		this.nodes.forEach(node => node.dragging = false);
+	}
+
+	/*
+	 * An internal method called to handle mouse exit events.
+	 */
+	onMouseExit(event)
+	{
+		this.mouseDown = false;
+		this.cameraDrag = false;
+
+		this.nodes.forEach(node =>
+		{
+			node.dragging = false;
+
+			if (node.hover)
+			{
+				node.hover = false;
+				this.repaint = true;
+			}
+		});
+	}
+
+	/*
+	 * An internal method called to handle mouse wheel events.
+	 */
+	onScroll(event)
+	{
+		let delta = 0;
+
+		if (!event)
+			event = window.event;
+		
+		if (event.wheelDelta)
+			delta = event.wheelDelta / 60;
+		else if (event.detail)
+			delta = -event.detail / 2;
+
+		if (delta == 0)
+			return;
+
+		let mouseX = event.clientX;
+		let mouseY = event.clientY;
+
+		let x = (mouseX + this.camera.x) / this.camera.zoom;
+		let y = (mouseY + this.camera.y) / this.camera.zoom;
+
+		if (delta < 0)
+		{
+			if (this.camera.zoom > 0.2)
+				this.camera.zoom *= Math.pow(0.92, -delta);
+		}
+		else
+		{
+			if (this.camera.zoom < 5)
+				this.camera.zoom *= Math.pow(1/0.92, delta);
+		}
+
+		this.camera.x = x * this.camera.zoom - mouseX;
+		this.camera.y = y * this.camera.zoom - mouseY;
+
+		this.repaint = true;
 	}
 }

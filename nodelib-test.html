@@ -4,13 +4,25 @@
 		<title>NodeLib Test</title>
 		<meta charset ="UTF-8"/>
 
-		<link rel="stylesheet" href="src/theme.css">
-
 		<style type="text/css">
-			#node-tree-canvas {
-				width: 50%;
-				height: 50%;
-				background-color: #CCCCCC;
+			html {
+				overflow: hidden;
+			}
+
+			html, body {
+				height: 100%;
+
+				margin: 0;
+				padding: 0;
+			}
+
+			#node-canvas {
+				height: 100%;
+				width: 100%;
+				font-size: 0;
+
+				margin: 0;
+				padding: 0;
 			}
 		</style>
 
@@ -27,10 +39,10 @@
 		<script>
 			function onLoad()
 			{
-				let div = document.getElementById('node-canvas');
+				let canvas = document.getElementById('node-canvas');
 
 				theme = new NodeGraph.Theme();
-				tree = new NodeGraph.Tree(div, theme);
+				tree = new NodeGraph.Tree(canvas, theme);
 
 				let node1 = tree.addNode('Node1', new NodeGraph.Position(200, 300));
 				let out1 = node1.addOutput();
@@ -45,7 +57,8 @@
 	</header>
 	
 	<body onload="onLoad()">
-		<div id="node-canvas">
-		</div>
+		<canvas id="node-canvas">
+			Your browser does not support HTML5 canvas, and is unable to view this web application. We recommend using Firefox or Chrome with JavaScript enabled.
+		</canvas>
 	</body>
 </html>

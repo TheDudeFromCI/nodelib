@@ -22,6 +22,7 @@ NodeGraph.Node = class
 	{
 		this.tree = tree;
 		this.name = name;
+		this.id = NodeGraph.Utils.randomGuid();
 
 		this.position = position;
 		this.posSmooth = position.copy();
@@ -29,36 +30,7 @@ NodeGraph.Node = class
 		this.outputPlugs = [];
 
 		this.dragging = false;
-
-		this.element = document.createElement('div');
-		this.element.classList.add('nodegraph-node');
-		tree.element.appendChild(this.element);
-
-		this.nameElem = document.createElement('p');
-		this.nameElem.innerHTML = name;
-		this.element.appendChild(this.nameElem);
-
-		this.inputElem = document.createElement('div');
-		this.inputElem.classList.add('nodegraph-inputs');
-		this.element.appendChild(this.inputElem);
-
-		this.outputElem = document.createElement('div');
-		this.outputElem.classList.add('nodegraph-outputs');
-		this.element.appendChild(this.outputElem);
-
-		this.updatePos();
-	}
-
-	/*
-	 * An internal function which updates the position of the element on the
-	 * screen to match the internal position.
-	 */
-	updatePos()
-	{
-		let pos = this.posSmooth.toScreen(this.tree.camera);
-
-		this.element.style.left = pos.x + 'px';
-		this.element.style.top = pos.y + 'px';
+		this.hover = false;
 	}
 
 	/*
@@ -123,10 +95,7 @@ NodeGraph.Node = class
 	{
 		delta = delta / this.tree.theme.nodeSmoothing;
 
-		if (!this.dragging)
-			this.posSmooth.lerpTo(this.position, delta);
-
-		this.updatePos();
+		this.posSmooth.lerpTo(this.position, delta);
 	}
 
 	/*
@@ -156,9 +125,7 @@ NodeGraph.Node = class
 		let plug = new NodeGraph.Plug(this, true, name, type);
 		this.inputPlugs.push(plug);
 
-		let plugElem = document.createElement('div');
-		plugElem.classList.add('nodegraph-plug');
-		this.inputElem.appendChild(plugElem);
+		this.tree.repaint = true;
 
 		return plug;
 	}
@@ -178,10 +145,136 @@ NodeGraph.Node = class
 		let plug = new NodeGraph.Plug(this, false, name, type);
 		this.outputPlugs.push(plug);
 
-		let plugElem = document.createElement('div');
-		plugElem.classList.add('nodegraph-plug');
-		this.outputElem.appendChild(plugElem);
+		this.tree.repaint = true;
 
 		return plug;
+	}
+
+	/*
+	 * Gets the width of this node in world space.
+	 */
+	get width()
+	{
+		return this.tree.theme.nodeWidth;
+	}
+
+	/*
+	 * Gets the height of this node in world space.
+	 */
+	get height()
+	{
+		return Math.max(this.tree.theme.nodeMinHeight,
+			Math.max(this.inputPlugs.length, this.outputPlugs.length)
+			* this.tree.theme.plugSpacing);
+	}
+
+	/*
+	 * Gets the color of this node. If this node has a specific color assigned
+	 * to it, that color is returned, otherwise the default theme color is
+	 * returned.
+	 */
+	get nodeColor()
+	{
+		if (this._nodeColor == null)
+			return this.tree.theme.nodeColor;
+
+		return this._nodeColor;
+	}
+
+	/*
+	 * Sets the color of this node. Set to null to use the default color.
+	 */
+	set nodeColor(value)
+	{
+		this._nodeColor = value;
+	}
+
+	/*
+	 * Gets the border color of this node. If this node has a specific border
+	 * color assigned to it, that color is returned, otherwise the default theme
+	 * color is returned.
+	 */
+	get borderColor()
+	{
+		if (this._borderColor == null)
+			return this.tree.theme.nodeBorderColor;
+
+		return this._nodeBorderColor;
+	}
+
+	/*
+	 * Sets the border color of this node. Set to null to use the default color.
+	 */
+	set borderColor(value)
+	{
+		this._nodeBorderColor = value;
+	}
+
+	/*
+	 * Gets the border color of this node. If this node has a specific border
+	 * color assigned to it, that color is returned, otherwise the default theme
+	 * color is returned.
+	 */
+	get borderColorHighlight()
+	{
+		if (this._borderColorHighlight == null)
+			return this.tree.theme.nodeBorderHighlight;
+
+		return this._nodeBorderColorHighlight;
+	}
+
+	/*
+	 * Sets the border color of this node. Set to null to use the default color.
+	 */
+	set borderColorHighlight(value)
+	{
+		this._nodeBorderColorHighlight = value;
+	}
+
+	/*
+	 * Renders this node onto the canvas object. This function should only be
+	 * used internally.
+	 *
+	 * ctx -
+	 *     The canvas context to render to.
+	 */
+	render(ctx)
+	{
+		let camera = this.tree.camera;
+		let zoom = camera.zoomSmooth;
+
+		let pos = this.posSmooth.toScreen(camera);
+		let width = this.width * zoom;
+		let height = this.height * zoom;
+
+		ctx.fillStyle = this.nodeColor;
+		ctx.fillRect(pos.x, pos.y, width, height);
+
+		if (this.select)
+			ctx.strokeStyle = this.tree.theme.nodeBorderSelect;
+		else if (this.hover)
+			ctx.strokeStyle = this.borderColorHighlight;
+		else
+			ctx.strokeStyle = this.borderColor;
+
+		ctx.lineWidth = this.tree.theme.nodeBorderThickness * zoom;
+		ctx.strokeRect(pos.x, pos.y, width, height);
+	}
+
+	/*
+	 * Checks if the given screen space position is within the bounds of this
+	 * node or not.
+	 */
+	isInBounds(x, y)
+	{
+		let camera = this.tree.camera;
+		let zoom = camera.zoomSmooth;
+
+		let pos = this.posSmooth.toScreen(camera);
+		let width = this.width * zoom;
+		let height = this.height * zoom;
+
+		return x >= pos.x && x < pos.x + width && y >= pos.y
+			&& y < pos.y + height;
 	}
 }
