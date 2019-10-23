@@ -99,7 +99,7 @@ NodeGraph.Tree = class
 	 */
 	addConnection(outputPlug,  inputPlug)
 	{
-		let connection = new NodeGraph.Connection(outputPlug, inputPlug);
+		let connection = new NodeGraph.Connection(this, outputPlug, inputPlug);
 
 		if (!this.contains(outputPlug.node))
 			throw "Connection exists outside of tree!";
@@ -197,6 +197,9 @@ NodeGraph.Tree = class
 
 		ctx.fillStyle = this.theme.backgroundColor;
 		ctx.fillRect(0, 0, width, height);
+
+		for (let i = 0; i < this.connections.length; i++)
+			this.connections[i].render(ctx);
 
 		for (let i = 0; i < this.nodes.length; i++)
 			this.nodes[i].render(ctx);

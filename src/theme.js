@@ -51,6 +51,18 @@ NodeGraph.Theme = class
 		this.connectionWidth = 3;
 
 		/*
+		 * The default color to use for rendering connections. The default value
+		 * can be overriden per connection by assigning the "connectionColor"
+		 * property of the output plug type for the connection.
+		 */
+		this.connectionColor = '#FF7F50';
+
+		/*
+		 * The shape style to use when rendering the connection.
+		 */
+		this.connectionStyle = NodeGraph.ConnectionStyle.Linear;
+
+		/*
 		 * Assigns the radius for how large a plug should be rendered on a node.
 		 * This value is in world space.
 		 */
