@@ -36,3 +36,73 @@ NodeGraph.ConnectionStyle.ZLinear = function(outputPlug, inputPlug, ctx,
 	ctx.lineTo(b.x, b.y);
 	ctx.stroke();
 }
+
+/*
+ * Renders a bezier curve between the two plugs.
+ */
+NodeGraph.ConnectionStyle.Bezier = function(outputPlug, inputPlug, ctx,
+	camera)
+{
+	let a = outputPlug.pos.toScreen(camera);
+	let b = inputPlug.pos.toScreen(camera);
+
+	ctx.beginPath();
+	ctx.moveTo(a.x, a.y);
+	ctx.bezierCurveTo(b.x, a.y, a.x, b.y, b.x, b.y);
+	ctx.stroke();
+}
+
+/*
+ * Renders a softer and more shallow bezier curve between the two plugs.
+ */
+NodeGraph.ConnectionStyle.SoftBezier = function(outputPlug, inputPlug, ctx,
+	camera)
+{
+	let a = outputPlug.pos.toScreen(camera);
+	let b = inputPlug.pos.toScreen(camera);
+	let c = (a.x + b.x) / 2;
+
+	ctx.beginPath();
+	ctx.moveTo(a.x, a.y);
+	ctx.bezierCurveTo(c, a.y, c, b.y, b.x, b.y);
+	ctx.stroke();
+}
+
+/*
+ * Renders a bezier curve between two plugs, but with a slight buffer before
+ * and after the plugs for a smoother entry/exit.
+ */
+NodeGraph.ConnectionStyle.BufferedBezier = function(outputPlug, inputPlug, ctx,
+	camera)
+{
+	let a = outputPlug.pos.toScreen(camera);
+	let b = inputPlug.pos.toScreen(camera);
+	let off = 25 * camera.zoomSmooth;
+
+	ctx.beginPath();
+	ctx.moveTo(a.x, a.y);
+	ctx.lineTo(a.x + off, a.y)
+	ctx.bezierCurveTo(b.x, a.y, a.x, b.y, b.x - off, b.y);
+	ctx.lineTo(b.x, b.y);
+	ctx.stroke();
+}
+
+/*
+ * Renders a bezier curve between two plugs, but with a slight buffer before
+ * and after the plugs for a smoother entry/exit.
+ */
+NodeGraph.ConnectionStyle.BufferedSoftBezier = function(outputPlug, inputPlug,
+	ctx, camera)
+{
+	let a = outputPlug.pos.toScreen(camera);
+	let b = inputPlug.pos.toScreen(camera);
+	let c = (a.x + b.x) / 2;
+	let off = 25 * camera.zoomSmooth;
+
+	ctx.beginPath();
+	ctx.moveTo(a.x, a.y);
+	ctx.lineTo(a.x + off, a.y)
+	ctx.bezierCurveTo(c, a.y, c, b.y, b.x - off, b.y);
+	ctx.lineTo(b.x, b.y);
+	ctx.stroke();
+}

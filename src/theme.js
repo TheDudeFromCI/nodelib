@@ -60,7 +60,7 @@ NodeGraph.Theme = class
 		/*
 		 * The shape style to use when rendering the connection.
 		 */
-		this.connectionStyle = NodeGraph.ConnectionStyle.ZLinear;
+		this.connectionStyle = NodeGraph.ConnectionStyle.BufferedSoftBezier;
 
 		/*
 		 * Assigns the radius for how large a plug should be rendered on a node.
