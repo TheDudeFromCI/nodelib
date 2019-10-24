@@ -26,6 +26,7 @@ NodeGraph.Node = class
 
 		this.position = position;
 		this.posSmooth = position.copy();
+		this.snapPos = position.copy();
 		this.inputPlugs = [];
 		this.outputPlugs = [];
 
@@ -86,7 +87,8 @@ NodeGraph.Node = class
 	}
 
 	/*
-	 * Updates this node's position to match the target.
+	 * Updates this node's position to match the target. While dragging, this
+	 * node is moved towards the drag position instead of the actual position.
 	 *
 	 * delta -
 	 *     The time in seconds since the last update.
@@ -95,7 +97,10 @@ NodeGraph.Node = class
 	{
 		delta = delta / this.tree.theme.nodeSmoothing;
 
-		this.posSmooth.lerpTo(this.position, delta);
+		if (this.dragging)
+			this.posSmooth.lerpTo(this.snapPos, delta);
+		else
+			this.posSmooth.lerpTo(this.position, delta);
 	}
 
 	/*

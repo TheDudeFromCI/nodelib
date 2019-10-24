@@ -72,12 +72,13 @@ NodeGraph.Position = class
 	 */
 	copy()
 	{
-		return new NodeGraph.Position(this.x, this.y);
+		return new NodeGraph.Position(this.x, this.y, this.worldSpace);
 	}
 
 	/*
 	 * Lerps the coordinates of this position object towards another position
-	 * object using a clamped lerp function.
+	 * object using a clamped lerp function. An error is thrown if positions
+	 * exist in different spaces.
 	 *
 	 * pos -
 	 *     The position to move towards.
@@ -86,12 +87,16 @@ NodeGraph.Position = class
 	 */
 	lerpTo(pos, t)
 	{
+		if (this.worldSpace != pos.worldSpace)
+			throw "Cannot lerp to position in different space!";
+
 		this.x = NodeGraph.Utils.lerp(this.x, pos.x, t);
 		this.y = NodeGraph.Utils.lerp(this.y, pos.y, t);
 	}
 
 	/*
-	 * Calculates the distance between this point and another point.
+	 * Calculates the distance between this point and another point. An error is
+	 * thrown if positions are thrown in different spaces.
 	 * 
 	 * pos -
 	 *     The other point.
@@ -102,16 +107,53 @@ NodeGraph.Position = class
 	}
 
 	/*
-	 * Calculates the distance squared between this point and another point.
+	 * Calculates the distance squared between this point and another point. An
+	 * error is thrown if positions exist in different spaces.
 	 * 
 	 * pos -
 	 *     The other point.
 	 */
 	distanceSquared(pos)
 	{
+		if (this.worldSpace != pos.worldSpace)
+			throw "Cannot get distance to position in different space!";
+
 		let dx = this.x - pos.x;
 		let dy = this.y - pos.y;
 
 		return dx * dx + dy * dy;
+	}
+
+	/*
+	 * Sets this positions coordinates and space to be equal to another position
+	 * safely.
+	 *
+	 * pos -
+	 *     The position to copy the coodinates and space from.
+	 */
+	setFrom(pos)
+	{
+		this.x = pos.x;
+		this.y = pos.y;
+		this.worldSpace = pos.worldSpace;
+	}
+
+	/*
+	 * Shifts this position by a given x and y delta. This is equal to a
+	 * translate event.
+	 */
+	shift(x, y)
+	{
+		this.x += x;
+		this.y += y;
+	}
+
+	/*
+	 * Assigns the x and y coordinates of this position directly.
+	 */
+	setTo(x, y)
+	{
+		this.x = x;
+		this.y = y;
 	}
 }

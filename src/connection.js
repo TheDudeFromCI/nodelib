@@ -22,6 +22,11 @@ NodeGraph.Connection = class
 		this.inputPlug = inputPlug;
 	}
 
+	/*
+	 * Gets the color of this connection. This color is determined by the
+	 * "connectionColor" property of the output plug type, if defined. If
+	 * not defined, the default color determined by the theme is returned.
+	 */
 	get connectionColor()
 	{
 		if (this.outputPlug.type == null

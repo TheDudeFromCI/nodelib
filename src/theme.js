@@ -35,14 +35,15 @@ NodeGraph.Theme = class
 		 * set to 0, the width, of a node is determined based on the length of
 		 * string of the name of the node. This value is in world space.
 		 */
-		this.nodeWidth = 120;
+		this.nodeWidth = 150;
 
 		/*
 		 * The smallest height a node should be rendered at. The height of a node
 		 * is automatically increased to contain all connection plugs, as well as
-		 * the name of the node. this value is in world space.
+		 * the name of the node. this value is in world space. The height of a
+		 * node is increased to the next grid size, if grid behavior is enabled.
 		 */
-		this.nodeMinHeight = 120;
+		this.nodeMinHeight = 150;
 
 		/*
 		 * Determines the width of connection lines in number of pixels. This
@@ -60,7 +61,7 @@ NodeGraph.Theme = class
 		/*
 		 * The shape style to use when rendering the connection.
 		 */
-		this.connectionStyle = NodeGraph.ConnectionStyle.EarlySharp;
+		this.connectionStyle = NodeGraph.ConnectionStyle.ZLinear;
 
 		/*
 		 * Assigns the radius for how large a plug should be rendered on a node.
@@ -137,5 +138,92 @@ NodeGraph.Theme = class
 		 * in world space.
 		 */
 		this.nodeBorderThickness = 5;
+
+		/*
+		 * The size of the grid to use when moving nodes. Nodes are snapped to
+		 * the nearest grid block. When set to 0, the grid is disabled.
+		 */
+		this.gridSize = 50;
+
+		/*
+		 * If true, grids are only rendered and have no effect on behavior.
+		 */
+		this.gridRenderOnly = false;
+
+		/*
+		 * The number of grid segements before rendering it as a major grid line.
+		 * If set to 0, major grid segments are disabled. These have no effect,
+		 * and are visual only. These do not render if gridSize is set to 0.
+		 */
+		this.gridMajorSegments = 4;
+
+		/*
+		 * The color of the grid to render.
+		 */
+		this.gridColor = '#888888';
+
+		/*
+		 * The color of major grid segments to render.
+		 */
+		this.gridMajorColor = '#AAAAAA';
+
+		/*
+		 * The smallest number of pixels, in screen space, to render a grid
+		 * segement at. If a grid is determined to be rendered smaller than
+		 * this value, such as by zooming out, the grid will be rendered at
+		 * the scale of the grid major segements, and grid major segements
+		 * are scaled up to the new grid size. If set to 0, grid outward
+		 * resizing is disabled.
+		 */
+		this.gridMinRenderSize = 25;
+
+		/*
+		 * This value is similar to gridMinRenderSize, however, using the reverse
+		 * effect. I.e., zooming in instead of zooming out. If set to 0, grid
+		 * inward resizing is disabled.
+		 */
+		this.gridMaxRenderSize = 100;
+	}
+
+	/*
+	 * Returns true if grids should be rendered.
+	 */
+	get shouldRenderGrid()
+	{
+		return this.gridSize > 0;
+	}
+
+	/*
+	 * Returns true if grid snapping behavior should be emulated.
+	 */
+	get hasGridBehavior()
+	{
+		return this.gridSize > 0 && !this.gridRenderOnly;
+	}
+
+	/*
+	 * Returns true if major grid segements should be rendered.
+	 */
+	get hasMajorGrid()
+	{
+		return this.shouldRenderGrid && this.gridMajorSegments > 0;
+	}
+
+	/*
+	 * Returns true if zooming in to a grid makes segements render
+	 * smaller.
+	 */
+	get shouldZoomInGrid()
+	{
+		return this.hasMajorGrid && this.gridMaxRenderSize > 0;
+	}
+
+	/*
+	 * Returns true if zooming out of a grid makes segements render
+	 * larger.
+	 */
+	get shouldZoomOutGrid()
+	{
+		return this.hasMajorGrid && this.gridMinRenderSize > 0;
 	}
 }

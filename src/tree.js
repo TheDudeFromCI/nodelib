@@ -191,18 +191,87 @@ NodeGraph.Tree = class
 	 */
 	render()
 	{
-		let width = this.canvas.width = this.canvas.clientWidth;
-		let height = this.canvas.height = this.canvas.clientHeight;
 		let ctx = this.canvas.getContext('2d');
-
-		ctx.fillStyle = this.theme.backgroundColor;
-		ctx.fillRect(0, 0, width, height);
+		this.renderBackground(ctx);
 
 		for (let i = 0; i < this.connections.length; i++)
 			this.connections[i].render(ctx);
 
 		for (let i = 0; i < this.nodes.length; i++)
 			this.nodes[i].render(ctx);
+	}
+
+	/*
+	 * This is an internal function which renders the background and the grid
+	 * to the canvas. If the grid is disabled, only the background is drawn.
+	 */
+	renderBackground(ctx)
+	{
+		let width = this.canvas.width = this.canvas.clientWidth;
+		let height = this.canvas.height = this.canvas.clientHeight;
+
+		ctx.fillStyle = this.theme.backgroundColor;
+		ctx.fillRect(0, 0, width, height);
+
+		if (!this.theme.shouldRenderGrid)
+			return;
+
+		let minBounds = new NodeGraph.Position(0, 0, false);
+		minBounds = minBounds.toWorld(this.camera);
+
+		let maxBounds = new NodeGraph.Position(width, height, false);
+		maxBounds = maxBounds.toWorld(this.camera);
+
+		let step = this.theme.gridSize;
+
+		if (this.theme.shouldZoomOutGrid)
+		{
+			while (this.camera.zoomSmooth * step < this.theme.gridMinRenderSize)
+				step *= this.theme.gridMajorSegments;
+		}
+
+		if (this.theme.shouldZoomInGrid)
+		{
+			while (this.camera.zoomSmooth * step > this.theme.gridMaxRenderSize)
+				step /= this.theme.gridMajorSegments;
+		}
+
+		ctx.strokeStyle = this.theme.gridColor;
+		ctx.lineWidth = 1;
+		this.renderGrid(ctx, minBounds, maxBounds, step, width, height);
+
+		if (this.theme.hasMajorGrid)
+		{
+			step *= this.theme.gridMajorSegments;
+
+			ctx.strokeStyle = this.theme.gridMajorColor;
+			this.renderGrid(ctx, minBounds, maxBounds, step, width, height);
+		}
+	}
+
+	renderGrid(ctx, minBounds, maxBounds, step, width, height)
+	{
+		let minX = Math.ceil(minBounds.x / step) * step;
+		let maxX = Math.ceil(maxBounds.x / step) * step;
+		let minY = Math.ceil(minBounds.y / step) * step;
+		let maxY = Math.ceil(maxBounds.y / step) * step;
+
+
+		for (let x = minX; x < maxX; x += step)
+		{
+			ctx.beginPath();
+			ctx.moveTo(this.camera.camX(x), 0);
+			ctx.lineTo(this.camera.camX(x), height);
+			ctx.stroke();
+		}
+
+		for (let y = minY; y < maxY; y += step)
+		{
+			ctx.beginPath();
+			ctx.moveTo(0, this.camera.camY(y));
+			ctx.lineTo(width, this.camera.camY(y));
+			ctx.stroke();
+		}
 	}
 
 	/*
@@ -337,6 +406,9 @@ NodeGraph.Tree = class
 			let dx = (x - this.lastMouseX) / this.camera.zoomSmooth;
 			let dy = (y - this.lastMouseY) / this.camera.zoomSmooth;
 
+			let hasGrid = this.theme.hasGridBehaviour;
+			let grid = this.theme.gridSize;
+
 			this.nodes.forEach(node =>
 			{
 				if (!node.select)
@@ -345,6 +417,14 @@ NodeGraph.Tree = class
 				node.dragging = true;
 				node.position.x += dx;
 				node.position.y += dy;
+
+				if (hasGrid)
+					node.snapPos.setFrom(node.position);
+				else
+				{
+					node.snapPos.x = Math.round(node.position.x / grid) * grid;
+					node.snapPos.y = Math.round(node.position.y / grid) * grid;
+				}
 			});
 		}
 
@@ -365,7 +445,12 @@ NodeGraph.Tree = class
 	{
 		this.mouseDown = false;
 		this.cameraDrag = false;
-		this.nodes.forEach(node => node.dragging = false);
+
+		this.nodes.forEach(node =>
+		{
+			node.dragging = false;
+			node.position.setFrom(node.snapPos);
+		});
 	}
 
 	/*
