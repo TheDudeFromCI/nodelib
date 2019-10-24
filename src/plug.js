@@ -108,6 +108,9 @@ NodeGraph.Plug = class
 	 */
 	get x()
 	{
+		if (this._x != null)
+			return this._x;
+
 		if (this.isInput)
 			return this.node.posSmooth.x;
 
@@ -119,6 +122,9 @@ NodeGraph.Plug = class
 	 */
 	get y()
 	{
+		if (this._y != null)
+			return this._y;
+
 		let list = this.isInput ?
 			this.node.inputPlugs : this.node.outputPlugs;
 

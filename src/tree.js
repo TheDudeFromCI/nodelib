@@ -25,6 +25,10 @@ NodeGraph.Tree = class
 		this.connections = [];
 		this.camera = new NodeGraph.Camera(theme);
 
+		this.tempConnectionPlug = new NodeGraph.Node(this, 'temp-drag',
+			new NodeGraph.Position(0, 0)).addInput();
+		this.tempConnection = null;
+
 		this.lastFrame = 0;
 		this.repaint = false;
 
@@ -199,6 +203,9 @@ NodeGraph.Tree = class
 
 		for (let i = 0; i < this.nodes.length; i++)
 			this.nodes[i].render(ctx);
+
+		if (this.tempConnection != null)
+			this.tempConnection.render(ctx);
 	}
 
 	/*
@@ -236,8 +243,8 @@ NodeGraph.Tree = class
 				step /= this.theme.gridMajorSegments;
 		}
 
-		ctx.strokeStyle = this.theme.gridColor;
 		ctx.lineWidth = 1;
+		ctx.strokeStyle = this.theme.gridColor;
 		this.renderGrid(ctx, minBounds, maxBounds, step, width, height);
 
 		if (this.theme.hasMajorGrid)
@@ -255,7 +262,6 @@ NodeGraph.Tree = class
 		let maxX = Math.ceil(maxBounds.x / step) * step;
 		let minY = Math.ceil(minBounds.y / step) * step;
 		let maxY = Math.ceil(maxBounds.y / step) * step;
-
 
 		for (let x = minX; x < maxX; x += step)
 		{
@@ -344,6 +350,7 @@ NodeGraph.Tree = class
 		this.lastMouseY = y;
 
 		this.cameraDrag = false;
+		this.firstMove = true;
 		this.nodes.forEach(node => node.dragging = false);
 
 		if (event.which == 1)
@@ -376,6 +383,8 @@ NodeGraph.Tree = class
 		let x = event.clientX;
 		let y = event.clientY;
 
+		let hoverPlug = null;
+
 		this.nodes.forEach(node =>
 		{
 			let hover = node.isInBounds(x, y);
@@ -383,6 +392,9 @@ NodeGraph.Tree = class
 			node.forEachPlug(plug =>
 			{
 				let h = plug.isInBounds(x, y);
+
+				if (h)
+					hoverPlug = plug;
 
 				if (h != plug.hover)
 				{
@@ -403,29 +415,42 @@ NodeGraph.Tree = class
 
 		if (this.mouseDown)
 		{
-			let dx = (x - this.lastMouseX) / this.camera.zoomSmooth;
-			let dy = (y - this.lastMouseY) / this.camera.zoomSmooth;
+			if (hoverPlug != null && this.firstMove)
+				this.tempConnection = new NodeGraph.Connection(this, hoverPlug,
+					this.tempConnectionPlug);
 
 			let hasGrid = this.theme.hasGridBehaviour;
 			let grid = this.theme.gridSize;
 
-			this.nodes.forEach(node =>
+			if (this.tempConnection != null)
 			{
-				if (!node.select)
-					return;
+				this.tempConnectionPlug._x = this.camera.acamX(x);
+				this.tempConnectionPlug._y = this.camera.acamY(y);
+				this.repaint = true;
+			}
+			else
+			{
+				let dx = (x - this.lastMouseX) / this.camera.zoomSmooth;
+				let dy = (y - this.lastMouseY) / this.camera.zoomSmooth;
 
-				node.dragging = true;
-				node.position.x += dx;
-				node.position.y += dy;
-
-				if (hasGrid)
-					node.snapPos.setFrom(node.position);
-				else
+				this.nodes.forEach(node =>
 				{
-					node.snapPos.x = Math.round(node.position.x / grid) * grid;
-					node.snapPos.y = Math.round(node.position.y / grid) * grid;
-				}
-			});
+					if (!node.select)
+						return;
+
+					node.dragging = true;
+					node.position.x += dx;
+					node.position.y += dy;
+
+					if (hasGrid)
+						node.snapPos.setFrom(node.position);
+					else
+					{
+						node.snapPos.x = Math.round(node.position.x / grid) * grid;
+						node.snapPos.y = Math.round(node.position.y / grid) * grid;
+					}
+				});
+			}
 		}
 
 		if (this.cameraDrag)
@@ -436,6 +461,7 @@ NodeGraph.Tree = class
 
 		this.lastMouseX = x;
 		this.lastMouseY = y;
+		this.firstMove = false;
 	}
 
 	/*
@@ -443,8 +469,38 @@ NodeGraph.Tree = class
 	 */
 	onMouseUp(event)
 	{
+		let x = event.clientX;
+		let y = event.clientY;
+
 		this.mouseDown = false;
 		this.cameraDrag = false;
+
+		if (this.tempConnection != null)
+		{
+			let hoverPlug = null;
+			this.nodes.forEach(node =>
+			{
+				node.forEachPlug(plug =>
+				{
+					let h = plug.isInBounds(x, y);
+
+					if (h)
+						hoverPlug = plug;
+				});
+			})
+
+			if (hoverPlug != null)
+			{
+				try
+				{
+					this.addConnection(this.tempConnection.outputPlug, hoverPlug);
+				}
+				catch (err){}
+			}
+
+			this.tempConnection = null;
+			this.repaint = true;
+		}
 
 		this.nodes.forEach(node =>
 		{

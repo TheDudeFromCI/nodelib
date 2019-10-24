@@ -63,6 +63,28 @@ NodeGraph.Camera = class
 	}
 
 	/*
+	 * Gets the World X position for a given Screen X position.
+	 *
+	 * x -
+	 *     The Screen X position.
+	 */
+	acamX(x)
+	{
+		return (x + this.xSmooth) / this.zoomSmooth;
+	}
+
+	/*
+	 * Gets the World Y position for a given Screen Y position.
+	 *
+	 * y -
+	 *     The Screen Y position.
+	 */
+	acamY(y)
+	{
+		return (y + this.ySmooth) / this.zoomSmooth;
+	}
+
+	/*
 	 * Checks if this camera needs to be updated or not. If false, the camera
 	 * will move to little for the rendered image to be effected. (less than
 	 * 1/10th of a pixel.) Returns true if the camera should be updated and
