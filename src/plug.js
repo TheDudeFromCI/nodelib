@@ -41,6 +41,17 @@ NodeGraph.Plug = class
 	 */
 	canConnectTo(plug)
 	{
+		if (!this.canReplaceConnection(plug))
+			return false;
+
+		if (this.node.tree.findConnections({inputPlug: plug}).length > 0)
+			return false;
+
+		return true;
+	}
+
+	canReplaceConnection(plug)
+	{
 		if (this.isInput == plug.isInput)
 			return false;
 
@@ -48,9 +59,6 @@ NodeGraph.Plug = class
 			return plug.canConnectTo(this);
 
 		if (this.node.tree !== plug.node.tree)
-			return false;
-
-		if (this.node.tree.findConnections({inputPlug: plug}).length > 0)
 			return false;
 
 		if (plug.node.isAncestorOf(this.node))

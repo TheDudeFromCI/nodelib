@@ -577,11 +577,16 @@ NodeGraph.Tree = class
 
 			if (hoverPlug != null)
 			{
-				try
+				if (this.tempConnection.outputPlug
+					.canReplaceConnection(hoverPlug))
 				{
-					this.addConnection(this.tempConnection.outputPlug, hoverPlug);
+					let list = this.findConnections({inputPlug: hoverPlug});
+					if (list.length > 0)
+						this.removeConnection(list[0]);
+
+					this.addConnection(this.tempConnection.outputPlug,
+						hoverPlug);
 				}
-				catch (err){}
 			}
 
 			this.tempConnection = null;
