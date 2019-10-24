@@ -32,6 +32,16 @@ NodeGraph.Node = class
 
 		this.dragging = false;
 		this.hover = false;
+
+		if (tree.theme.hasGridBehavior)
+		{
+			let step = tree.theme.gridSize;
+
+			this.position.x = Math.round(this.position.x / step) * step;
+			this.position.y = Math.round(this.position.y / step) * step;
+			this.posSmooth.setFrom(this.position);
+			this.snapPos.setFrom(this.position);
+		}
 	}
 
 	/*
@@ -179,7 +189,7 @@ NodeGraph.Node = class
 		let height = Math.max(this.tree.theme.nodeMinHeight,
 			Math.max(this.inputPlugs.length, this.outputPlugs.length)
 			* this.tree.theme.plugSpacing);
-		
+
 		if (this.tree.theme.hasGridBehavior)
 		{
 			let step = this.tree.theme.gridSize;

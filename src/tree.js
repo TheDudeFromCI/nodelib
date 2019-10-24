@@ -44,8 +44,13 @@ NodeGraph.Tree = class
 		requestAnimationFrame(time => this.animation(time));
 	}
 
+	/*
+	 * Creates the popup menu object. This is is an internal function.
+	 */
 	buildPopup()
 	{
+		this.popupOptions = [];
+
 		let popup = document.createElement('div');
 		popup.classList.add('nodegraph-popup');
 		document.body.appendChild(popup);
@@ -54,9 +59,14 @@ NodeGraph.Tree = class
 		this.popuptext.classList.add('nodegraph-popuptext');
 		popup.appendChild(this.popuptext);
 
-		this.addPopupOption('Add', 'Adds a new node to the field.');
+		this.defaultPopup = this.addPopupOption('Empty', '');
 	}
 
+	/*
+	 * Appends a new object to the bottom of the popup menu. This can be used
+	 * to customize how nodes should be interacted with. Returns the popup menu
+	 * object for the newly created option.
+	 */
 	addPopupOption(text, tooltip)
 	{
 		let elem1 = document.createElement('p');
@@ -70,6 +80,37 @@ NodeGraph.Tree = class
 		tip1.unselectable = 'on';
 		tip1.classList.add('nodegraph-unselectable');
 		this.popuptext.appendChild(tip1);
+
+		let obj = new NodeGraph.PopupObject(this, elem1, tip1);
+		this.popupOptions.push(obj);
+
+		if (this.popupOptions.length == 2 && this.popupOptions[0]
+			=== this.defaultPopup)
+			this.removePopupOption(this.defaultPopup);
+
+		return obj;
+	}
+
+	/*
+	 * Removes an option from the popup menu. Does nothing if the option is not
+	 * current in the popup menu.
+	 *
+	 * option -
+	 *     The option to remove.
+	 */
+	removePopupOption(option)
+	{
+		let index = this.popupOptions.indexOf(option);
+		if (index == -1)
+			return;
+
+		this.popupOptions.splice(index, 1);
+
+		this.popuptext.removeChild(option.element1);
+		this.popuptext.removeChild(option.element2);
+
+		if (this.popupOptions.length == 0)
+			this.addPopupOption(this.defaultPopup);
 	}
 
 	/*

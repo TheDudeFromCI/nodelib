@@ -38,6 +38,7 @@
 		<script src="src/tree.js"></script>
 		<script src="src/utils.js"></script>
 		<script src="src/connectionstyle.js"></script>
+		<script src="src/popupoption.js"></script>
 
 		<script>
 			function onLoad()
@@ -47,14 +48,21 @@
 				theme = new NodeGraph.Theme();
 				tree = new NodeGraph.Tree(canvas, theme);
 
-				let node1 = tree.addNode('Node1', new NodeGraph.Position(200, 300));
-				let out1 = node1.addOutput();
-				let out2 = node1.addOutput();
+				tree.addPopupOption('Add', 'Adds a new node.').onclick = event =>
+				{
+					let x = event.clientX;
+					let y = event.clientY;
+					let pos = new NodeGraph.Position(x, y, false);
+					pos = pos.toWorld(tree.camera);
 
-				let node2 = tree.addNode('Node2', new NodeGraph.Position(350, 500));
-				let in1 = node2.addInput();
+					let n = tree.addNode('Node', pos);
 
-				tree.addConnection(out1, in1);
+					n.addInput('In 1');
+					n.addInput('In 2');
+					n.addInput('In 3');
+					n.addOutput('Out 1');
+					n.addOutput('Out 2');
+				};
 			}
 		</script>
 	</header>
