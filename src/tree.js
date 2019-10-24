@@ -60,6 +60,7 @@ NodeGraph.Tree = class
 		popup.appendChild(this.popuptext);
 
 		this.defaultPopup = this.addPopupOption('Empty', '');
+		this.defaultPopup.greyedOut = true;
 	}
 
 	/*
@@ -110,7 +111,10 @@ NodeGraph.Tree = class
 		this.popuptext.removeChild(option.element2);
 
 		if (this.popupOptions.length == 0)
-			this.addPopupOption(this.defaultPopup);
+		{
+			this.defaultPopup = this.addPopupOption('Empty', '');
+			this.defaultPopup.greyedOut = true;
+		}
 	}
 
 	/*

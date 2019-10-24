@@ -63,11 +63,6 @@
 	background-color: #AAAAAA;
 }
 
-.nodegraph-popuptext p:hover + div{
-	display: block !important;
-	width: 275px;
-}
-
 .nodegraph-popuptext div {
 	position: absolute;
 	display: none;
@@ -78,6 +73,15 @@
 	margin-left: 155px;
 	border-radius: 5px;
 	background-color: #555555;
+}
+
+.nodegraph-popuptext p:hover + div{
+	display: block;
+	width: 275px;
+}
+
+.nodegraph-popuptext div:empty {
+   display: none !important;
 }
 
 .nodegraph-unselectable {
