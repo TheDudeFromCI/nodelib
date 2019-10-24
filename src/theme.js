@@ -33,7 +33,9 @@ NodeGraph.Theme = class
 		/*
 		 * How wide nodes should be rendered. All nodes have a constant width. If
 		 * set to 0, the width, of a node is determined based on the length of
-		 * string of the name of the node. This value is in world space.
+		 * string of the name of the node. This value is in world space. The
+		 * width of a node is rounded up to the next grid size, if grids are
+		 * enabled.
 		 */
 		this.nodeWidth = 150;
 

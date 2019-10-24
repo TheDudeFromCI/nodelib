@@ -160,7 +160,15 @@ NodeGraph.Node = class
 	 */
 	get width()
 	{
-		return this.tree.theme.nodeWidth;
+		let width = this.tree.theme.nodeWidth;
+
+		if (this.tree.theme.hasGridBehavior)
+		{
+			let step = this.tree.theme.gridSize;
+			width = Math.ceil(width / step) * step;
+		}
+
+		return width;
 	}
 
 	/*
@@ -168,9 +176,17 @@ NodeGraph.Node = class
 	 */
 	get height()
 	{
-		return Math.max(this.tree.theme.nodeMinHeight,
+		let height = Math.max(this.tree.theme.nodeMinHeight,
 			Math.max(this.inputPlugs.length, this.outputPlugs.length)
 			* this.tree.theme.plugSpacing);
+		
+		if (this.tree.theme.hasGridBehavior)
+		{
+			let step = this.tree.theme.gridSize;
+			height = Math.ceil(height / step) * step;
+		}
+
+		return height;
 	}
 
 	/*
