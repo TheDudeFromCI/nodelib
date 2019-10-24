@@ -18,7 +18,7 @@ NodeGraph.Theme = class
 		 * How smooth to make node dragging. Smaller values are more responsive
 		 * but jittery, while larger values are slower and smoother.
 		 */
-		this.nodeSmoothing = 0.1;
+		this.nodeSmoothing = 0.08;
 
 		/*
 		 * When rendering the name of the node, how large should the font be?

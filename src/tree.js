@@ -501,6 +501,13 @@ NodeGraph.Tree = class
 			{
 				this.tempConnectionPlug._x = this.camera.acamX(x);
 				this.tempConnectionPlug._y = this.camera.acamY(y);
+
+				if (hoverPlug != null)
+				{
+					this.tempConnectionPlug._x = hoverPlug.x;
+					this.tempConnectionPlug._y = hoverPlug.y;
+				}
+
 				this.repaint = true;
 			}
 			else
