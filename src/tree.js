@@ -30,15 +30,46 @@ NodeGraph.Tree = class
 		this.tempConnection = null;
 
 		this.lastFrame = 0;
-		this.repaint = false;
+		this.repaint = true;
 
 		canvas.addEventListener('mousedown', event => this.onMouseDown(event));
 		canvas.addEventListener('mousemove', event => this.onMouseMove(event));
 		canvas.addEventListener('mouseup', event => this.onMouseUp(event));
 		canvas.addEventListener('mouseout', event => this.onMouseExit(event));
 		canvas.addEventListener('mousewheel', event => this.onScroll(event), {passive:true});
+		canvas.addEventListener('contextmenu', event => this.onContextMenu(event), false);
+
+		this.buildPopup();
 
 		requestAnimationFrame(time => this.animation(time));
+	}
+
+	buildPopup()
+	{
+		let popup = document.createElement('div');
+		popup.classList.add('nodegraph-popup');
+		document.body.appendChild(popup);
+
+		this.popuptext = document.createElement('span');
+		this.popuptext.classList.add('nodegraph-popuptext');
+		popup.appendChild(this.popuptext);
+
+		this.addPopupOption('Add', 'Adds a new node to the field.');
+	}
+
+	addPopupOption(text, tooltip)
+	{
+		let elem1 = document.createElement('p');
+		elem1.innerHTML = text;
+		elem1.unselectable = 'on';
+		elem1.classList.add('nodegraph-unselectable');
+		this.popuptext.appendChild(elem1);
+
+		let tip1 = document.createElement('div');
+		tip1.innerHTML = tooltip;
+		tip1.unselectable = 'on';
+		tip1.classList.add('nodegraph-unselectable');
+		this.popuptext.appendChild(tip1);
 	}
 
 	/*
@@ -344,6 +375,9 @@ NodeGraph.Tree = class
 	 */
 	onMouseDown(event)
 	{
+		if (event.which != 3)
+			this.popuptext.classList.toggle("nodegraph-show", false);
+
 		let x = event.clientX;
 		let y = event.clientY;
 		this.lastMouseX = x;
@@ -578,5 +612,19 @@ NodeGraph.Tree = class
 		this.camera.y = y * this.camera.zoom - mouseY;
 
 		this.repaint = true;
+	}
+
+	onContextMenu(event)
+	{
+		this.popuptext.classList.toggle("nodegraph-show");
+
+		let popupContainer = this.popuptext.parentElement;
+		popupContainer.style.left = event.clientX + 'px';
+		popupContainer.style.top = event.clientY + 'px';
+
+		this.onMouseDown(event);
+		this.onMouseUp(event);
+
+		event.preventDefault();
 	}
 }
