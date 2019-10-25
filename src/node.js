@@ -11,18 +11,22 @@ NodeGraph.Node = class
 	 *
 	 * tree -
 	 *     The tree which owns this node.
-	 * name -
-	 *     The name of the node.
 	 * position -
 	 *     The initial position of the node.
 	 * type -
-	 *     The type of this node, used for API purposes. Defaults to null.
+	 *     The type of this node, used for API purposes. Defaults to null. If
+	 *     defined, and the "onInit(node)" function is defined, it will be
+	 *     called to initialize this node.
+	 * name -
+	 *     The name of the node. Defaults to 'Node'. If type is defined, and
+	 *     "name" is defined for the type, name is retrieved from that.
 	 */
-	constructor(tree, name, position, type = null)
+	constructor(tree, position, type = null, name = 'Node')
 	{
 		this.tree = tree;
 		this.name = name;
 		this.id = NodeGraph.Utils.randomGuid();
+		this.type= type;
 
 		this.position = position;
 		this.posSmooth = position.copy();
@@ -41,6 +45,15 @@ NodeGraph.Node = class
 			this.position.y = Math.round(this.position.y / step) * step;
 			this.posSmooth.setFrom(this.position);
 			this.snapPos.setFrom(this.position);
+		}
+
+		if (type != null)
+		{
+			if (type.name != null)
+				this.name = type.name;
+
+			if (type.onInit != null)
+				type.onInit(this);
 		}
 	}
 
@@ -221,6 +234,27 @@ NodeGraph.Node = class
 	}
 
 	/*
+	 * Gets the header color of this node. If this node has a specific color
+	 * assigned to it, that color is returned, otherwise the default theme color
+	 * is returned.
+	 */
+	get nodeHeaderColor()
+	{
+		if (this._nodeHeaderColor == null)
+			return this.tree.theme.nodeHeaderColor;
+
+		return this._nodeHeaderColor;
+	}
+
+	/*
+	 * Sets the header color of this node. Set to null to use the default color.
+	 */
+	set nodeHeaderColor(value)
+	{
+		this._nodeHeaderColor = value;
+	}
+
+	/*
 	 * Gets the border color of this node. If this node has a specific border
 	 * color assigned to it, that color is returned, otherwise the default theme
 	 * color is returned.
@@ -277,9 +311,19 @@ NodeGraph.Node = class
 		let pos = this.posSmooth.toScreen(camera);
 		let width = this.width * zoom;
 		let height = this.height * zoom;
+		let radius = this.tree.theme.nodeBorderRadius * zoom;
+		let header = this.tree.theme.nodeHeaderSize * zoom;
 
+		this.buildNodeShape(ctx, pos, width, height, radius);
 		ctx.fillStyle = this.nodeColor;
-		ctx.fillRect(pos.x, pos.y, width, height);
+		ctx.fill();
+
+		this.buildNodeHeaderShape(ctx, pos, width, height, radius, header);
+		ctx.fillStyle = this.nodeHeaderColor;
+		ctx.fill();
+
+		this.buildNodeShape(ctx, pos, width, height, radius);
+		ctx.lineWidth = this.tree.theme.nodeBorderThickness * zoom;
 
 		if (this.select)
 			ctx.strokeStyle = this.tree.theme.nodeBorderSelect;
@@ -288,14 +332,57 @@ NodeGraph.Node = class
 		else
 			ctx.strokeStyle = this.borderColor;
 
-		ctx.lineWidth = this.tree.theme.nodeBorderThickness * zoom;
-		ctx.strokeRect(pos.x, pos.y, width, height);
+		ctx.stroke();
 
 		for (let i = 0; i < this.inputPlugs.length; i++)
 			this.inputPlugs[i].render(ctx);
 
 		for (let i = 0; i < this.outputPlugs.length; i++)
 			this.outputPlugs[i].render(ctx);
+
+		ctx.font = this.tree.theme.fontSize * zoom + 'px '
+			+ this.tree.theme.fontFamily;
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle';
+		ctx.fillText(this.name, pos.x + width / 2, pos.y + header / 2 * 1.05);
+	}
+
+	/*
+	 * An internal function for building the path for rendering the node shape.
+	 */
+	buildNodeShape(ctx, pos, width, height, radius)
+	{
+		ctx.beginPath();
+		ctx.moveTo(pos.x + radius, pos.y);
+		ctx.lineTo(pos.x + width - radius, pos.y);
+		ctx.quadraticCurveTo(pos.x + width, pos.y, pos.x + width,
+			pos.y + radius);
+		ctx.lineTo(pos.x + width, pos.y + height - radius);
+		ctx.quadraticCurveTo(pos.x + width, pos.y + height,
+			pos.x + width - radius, pos.y + height);
+		ctx.lineTo(pos.x + radius, pos.y + height);
+		ctx.quadraticCurveTo(pos.x, pos.y + height, pos.x,
+			pos.y + height - radius);
+		ctx.lineTo(pos.x, pos.y + radius);
+		ctx.quadraticCurveTo(pos.x, pos.y, pos.x + radius, pos.y);
+		ctx.closePath();
+	}
+
+	/*
+	 * An internal function for building the path for rendering the node header.
+	 */
+	buildNodeHeaderShape(ctx, pos, width, height, radius, header)
+	{
+		ctx.beginPath();
+		ctx.moveTo(pos.x + radius, pos.y);
+		ctx.lineTo(pos.x + width - radius, pos.y);
+		ctx.quadraticCurveTo(pos.x + width, pos.y, pos.x + width,
+			pos.y + radius);
+		ctx.lineTo(pos.x + width, pos.y + header);
+		ctx.lineTo(pos.x, pos.y + header);
+		ctx.lineTo(pos.x, pos.y + radius);
+		ctx.quadraticCurveTo(pos.x, pos.y, pos.x + radius, pos.y);
+		ctx.closePath();
 	}
 
 	/*

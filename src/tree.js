@@ -21,23 +21,28 @@ NodeGraph.Tree = class
 		this.canvas = canvas;
 		this.theme = theme;
 
+		this.canvasWidth = canvas.clientWidth;
+		this.canvasHeight = canvas.clientHeight;
+
 		this.nodes = [];
 		this.connections = [];
 		this.camera = new NodeGraph.Camera(theme);
 
-		this.tempConnectionPlug = new NodeGraph.Node(this, 'temp-drag',
+		this.tempConnectionPlug = new NodeGraph.Node(this,
 			new NodeGraph.Position(0, 0)).addInput();
 		this.tempConnection = null;
 
 		this.lastFrame = 0;
 		this.repaint = true;
 
-		canvas.addEventListener('mousedown', event => this.onMouseDown(event));
-		canvas.addEventListener('mousemove', event => this.onMouseMove(event));
-		canvas.addEventListener('mouseup', event => this.onMouseUp(event));
-		canvas.addEventListener('mouseout', event => this.onMouseExit(event));
-		canvas.addEventListener('mousewheel', event => this.onScroll(event), {passive:true});
-		canvas.addEventListener('contextmenu', event => this.onContextMenu(event), false);
+		canvas.addEventListener('mousedown', e => this.onMouseDown(e));
+		canvas.addEventListener('mousemove', e => this.onMouseMove(e));
+		canvas.addEventListener('mouseup', e => this.onMouseUp(e));
+		canvas.addEventListener('mouseout', e => this.onMouseExit(e));
+		canvas.addEventListener('contextmenu', e => this.onContextMenu(e),
+			false);
+		canvas.addEventListener('mousewheel', e => this.onScroll(e),
+			{passive: true});
 
 		this.buildPopup();
 
@@ -159,9 +164,9 @@ NodeGraph.Tree = class
 	 * type -
 	 *     The type of this node, used for API purposes. Defaults to null.
 	 */
-	addNode(name, position = new NodeGraph.Position(0, 0), type = null)
+	addNode(position = new NodeGraph.Position(0, 0), type = null, name = 'Node')
 	{
-		let node = new NodeGraph.Node(this, name, position, type);
+		let node = new NodeGraph.Node(this, position, type, name);
 		this.nodes.push(node);
 
 		return node;
@@ -290,8 +295,11 @@ NodeGraph.Tree = class
 	 */
 	renderBackground(ctx)
 	{
-		let width = this.canvas.width = this.canvas.clientWidth;
-		let height = this.canvas.height = this.canvas.clientHeight;
+		this.canvasWidth = this.canvas.clientWidth;
+		this.canvasHeight = this.canvas.clientHeight;
+
+		let width = this.canvas.width = this.canvasWidth;
+		let height = this.canvas.height = this.canvasHeight;
 
 		ctx.fillStyle = this.theme.backgroundColor;
 		ctx.fillRect(0, 0, width, height);
@@ -332,6 +340,11 @@ NodeGraph.Tree = class
 		}
 	}
 
+	/*
+	 * Renders the grid onto the background as specified by the theme. Called
+	 * once for minor grid segements and once for major grid segments. This is
+	 * an internal function and should not be called.
+	 */
 	renderGrid(ctx, minBounds, maxBounds, step, width, height)
 	{
 		let minX = Math.ceil(minBounds.x / step) * step;
@@ -344,6 +357,7 @@ NodeGraph.Tree = class
 			ctx.beginPath();
 			ctx.moveTo(this.camera.camX(x), 0);
 			ctx.lineTo(this.camera.camX(x), height);
+			ctx.closePath();
 			ctx.stroke();
 		}
 
@@ -352,6 +366,7 @@ NodeGraph.Tree = class
 			ctx.beginPath();
 			ctx.moveTo(0, this.camera.camY(y));
 			ctx.lineTo(width, this.camera.camY(y));
+			ctx.closePath();
 			ctx.stroke();
 		}
 	}
@@ -364,6 +379,10 @@ NodeGraph.Tree = class
 	needsUpdate()
 	{
 		if (this.repaint)
+			return true;
+
+		if (this.canvas.clientWidth != this.canvasWidth
+			|| this.canvasHeight != this.canvasHeight)
 			return true;
 
 		if(this.camera.needsUpdate())

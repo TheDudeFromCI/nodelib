@@ -48,6 +48,32 @@
 				theme = new NodeGraph.Theme();
 				tree = new NodeGraph.Tree(canvas, theme);
 
+				let redNode =
+				{
+					name: 'Color Blend',
+
+					onInit: function(node)
+					{
+						node.addInput('Color 1');
+						node.addInput('Color 2');
+						node.addInput('Mix');
+						node.addOutput("Color");
+					}
+				}
+
+				let blueNode =
+				{
+					name: 'RGB Split',
+
+					onInit: function(node)
+					{
+						node.addInput('Color');
+						node.addOutput('R');
+						node.addOutput('G');
+						node.addOutput('B');
+					}
+				}
+
 				tree.addPopupOption('Add', 'Adds a new node.').onclick = event =>
 				{
 					let x = event.clientX;
@@ -55,13 +81,7 @@
 					let pos = new NodeGraph.Position(x, y, false);
 					pos = pos.toWorld(tree.camera);
 
-					let n = tree.addNode('Node', pos);
-
-					n.addInput('In 1');
-					n.addInput('In 2');
-					n.addInput('In 3');
-					n.addOutput('Out 1');
-					n.addOutput('Out 2');
+					tree.addNode(pos, redNode);
 				};
 			}
 		</script>

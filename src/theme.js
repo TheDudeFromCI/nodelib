@@ -23,7 +23,7 @@ NodeGraph.Theme = class
 		/*
 		 * When rendering the name of the node, how large should the font be?
 		 */
-		this.fontSize = 24;
+		this.fontSize = 16;
 
 		/*
 		 * When rendering the name of the node, what font should be used?
@@ -51,7 +51,7 @@ NodeGraph.Theme = class
 		 * Determines the width of connection lines in number of pixels. This
 		 * value is in world space.
 		 */
-		this.connectionWidth = 3;
+		this.connectionWidth = 2;
 
 		/*
 		 * The default color to use for rendering connections. The default value
@@ -83,7 +83,7 @@ NodeGraph.Theme = class
 		 * The size, in pixels, of the border for each plug. This value is in
 		 * world space.
 		 */
-		this.plugBorderSize = 3;
+		this.plugBorderSize = 1;
 
 		/*
 		 * The default background color for plugs. Can be overriden per plug by
@@ -109,13 +109,13 @@ NodeGraph.Theme = class
 		 * been known to sometimes ignore mouse events and pass events to under
 		 * lying elements.
 		 */
-		this.backgroundColor = '#777777';
+		this.backgroundColor = '#121212';
 
 		/*
 		 * The default background color for nodes. Can be overriden per node by
 		 * assigning the "nodeColor" property of a specific node.
 		 */
-		this.nodeColor = '#550000';
+		this.nodeColor = '#552222';
 
 		/*
 		 * The default border color for nodes. Can be overriden per node by
@@ -128,18 +128,37 @@ NodeGraph.Theme = class
 		 * per node by assigning the "borderColorHighlight" property of a
 		 * specific node.
 		 */
-		this.nodeBorderHighlight = '#888888';
+		this.nodeBorderHighlight = '#777777';
 
 		/*
 		 * The border color for nodes which are selected.
 		 */
-		this.nodeBorderSelect = '#FFFF00';
+		this.nodeBorderSelect = '#999999';
+
+		/*
+		 * The default background color of the header for a node. Can be
+		 * overriden per node by assigning the "nodeColor" property of a
+		 * specific node.
+		 */
+		this.nodeHeaderColor = '#441111';
+
+		/*
+		 * The number of pixels, in world space, of the height of the header
+		 * for nodes.
+		 */
+		this.nodeHeaderSize = 37;
 
 		/*
 		 * The thickness, in pixels of the borders for each node. This value is
 		 * in world space.
 		 */
-		this.nodeBorderThickness = 5;
+		this.nodeBorderThickness = 2;
+
+		/*
+		 * Sets, in world space pixels, how round the corners of the nodes should
+		 * be. If 0, corners are rectangular.
+		 */
+		this.nodeBorderRadius = 16;
 
 		/*
 		 * The size of the grid to use when moving nodes. Nodes are snapped to
@@ -162,12 +181,12 @@ NodeGraph.Theme = class
 		/*
 		 * The color of the grid to render.
 		 */
-		this.gridColor = '#888888';
+		this.gridColor = '#242424';
 
 		/*
 		 * The color of major grid segments to render.
 		 */
-		this.gridMajorColor = '#AAAAAA';
+		this.gridMajorColor = '#363636';
 
 		/*
 		 * The smallest number of pixels, in screen space, to render a grid
