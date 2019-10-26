@@ -21,14 +21,34 @@ NodeGraph.Theme = class
 		this.nodeSmoothing = 0.08;
 
 		/*
-		 * When rendering the name of the node, how large should the font be?
+		 * The font size, in world space, to render the header with.
 		 */
-		this.fontSize = 16;
+		this.headerFontSize = 16;
 
 		/*
-		 * When rendering the name of the node, what font should be used?
+		 * The font size, in world space, to render plug names with.
 		 */
-		this.fontFamily = "Calibri";
+		this.plugFontSize = 8;
+
+		/*
+		 * The font to use when rendering the header name for nodes.
+		 */
+		this.headerFontFamily = "Calibri";
+
+		/*
+		 * The font to use when rendering the plug names for nodes.
+		 */
+		this.plugFontFamily = "Calibri";
+
+		/*
+		 * The color of header name text for nodes.
+		 */
+		this.headerFontColor = '#CCCCCC';
+
+		/*
+		 * The color of plug name text for nodes.
+		 */
+		this.plugFontColor = '#AAAAAA';
 
 		/*
 		 * How wide nodes should be rendered. All nodes have a constant width. If
@@ -63,7 +83,7 @@ NodeGraph.Theme = class
 		/*
 		 * The shape style to use when rendering the connection.
 		 */
-		this.connectionStyle = NodeGraph.ConnectionStyle.ZLinear;
+		this.connectionStyle = NodeGraph.ConnectionStyle.SoftBezier;
 
 		/*
 		 * Assigns the radius for how large a plug should be rendered on a node.
@@ -83,7 +103,7 @@ NodeGraph.Theme = class
 		 * The size, in pixels, of the border for each plug. This value is in
 		 * world space.
 		 */
-		this.plugBorderSize = 1;
+		this.plugBorderSize = 1.5;
 
 		/*
 		 * The default background color for plugs. Can be overriden per plug by
@@ -133,7 +153,7 @@ NodeGraph.Theme = class
 		/*
 		 * The border color for nodes which are selected.
 		 */
-		this.nodeBorderSelect = '#999999';
+		this.nodeBorderSelect = '#999955';
 
 		/*
 		 * The default background color of the header for a node. Can be

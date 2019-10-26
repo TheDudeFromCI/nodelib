@@ -10,7 +10,7 @@
 	color: #fff;
 	text-align: center;
 	border-radius: 6px;
-	padding: 2px 0;
+	padding: 5px;
 	position: absolute;
 	z-index: 1;
 	bottom: 125%;
@@ -49,38 +49,87 @@
 	to { opacity: 1; }
 }
 
-.nodegraph-popuptext p {
+.nodegraph-menuoption {
 	margin-top: 2px;
 	margin-bottom: 2px;
 	margin-left: auto;
 	margin-right: auto;
 	border-radius: 5px;
 	background-color: transparent;
-	width: 95%;
+
+	display: inline-block;
+
+	width: 90%;
+	height: 20px;
+
+	text-align: left;
+	padding-left: 5px;
+
+	transition: transform .05s;
 }
 
-.nodegraph-popuptext p:hover{
+.nodegraph-menuoption:hover:not(.nodegraph-greyout) {
 	background-color: #AAAAAA;
+	transform: scale(1.08);
 }
 
-.nodegraph-popuptext div {
+.nodegraph-tooltip {
 	position: absolute;
 	display: none;
 	text-align: left;
 	border-radius: 0px;
 	padding: 5px;
 	margin-top: -50px;
-	margin-left: 155px;
+	margin-left: 160px;
 	border-radius: 5px;
 	background-color: #555555;
-}
-
-.nodegraph-popuptext p:hover + div{
-	display: block;
 	width: 275px;
 }
 
-.nodegraph-popuptext div:empty {
+.nodegraph-submenu {
+	position: absolute;
+	display: none;
+	text-align: left;
+	border-radius: 0px;
+	padding: 5px;
+	padding-left: 12px;
+	margin-top: -27px;
+	margin-left: 158px;
+	border-radius: 5px;
+	background-color: #555555;
+	width: 150px;
+}
+
+.nodegraph-menuoption:hover + .nodegraph-tooltip {
+	display: block;
+}
+
+.nodegraph-menuoption:hover + .nodegraph-submenu {
+	display: block;
+}
+
+.nodegraph-menuArrow {
+	display: inline-block;
+	opacity: 0%;
+	position: absolute;
+	top: auto;
+	left: calc(100% - 5px);
+	width: 20px;
+	height: 30px;
+
+	margin: 0px;
+	padding: 0px;
+}
+
+.nodegraph-menuArrow:hover + .nodegraph-submenu {
+	display: block;
+}
+
+.nodegraph-submenu:hover {
+	display: block;
+}
+
+.nodegraph-tooltip:empty {
    display: none !important;
 }
 

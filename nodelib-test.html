@@ -48,7 +48,13 @@
 				theme = new NodeGraph.Theme();
 				tree = new NodeGraph.Tree(canvas, theme);
 
-				let redNode =
+				let colorNodesMenu = tree.createContextSubmenu('Color');
+				let mathNodesMenu = tree.createContextSubmenu('Math');
+				let textureNodesMenu = tree.createContextSubmenu('Texture');
+				let converterColorNodesMenu = tree.createContextSubmenu('Converter',
+					colorNodesMenu);
+
+				let colorBlendNode =
 				{
 					name: 'Color Blend',
 
@@ -61,9 +67,9 @@
 					}
 				}
 
-				let blueNode =
+				let rgbaSplitNode =
 				{
-					name: 'RGB Split',
+					name: 'RGBA Split',
 
 					onInit: function(node)
 					{
@@ -71,18 +77,60 @@
 						node.addOutput('R');
 						node.addOutput('G');
 						node.addOutput('B');
+						node.addOutput('A');
 					}
 				}
 
-				tree.addPopupOption('Add', 'Adds a new node.').onclick = event =>
+				let rgbToHsvNode =
 				{
-					let x = event.clientX;
-					let y = event.clientY;
-					let pos = new NodeGraph.Position(x, y, false);
-					pos = pos.toWorld(tree.camera);
+					name: 'RGB To HSV',
 
-					tree.addNode(pos, redNode);
-				};
+					onInit: function(node)
+					{
+						node.addInput('RGB');
+						node.addOutput('Hue');
+						node.addOutput('Saturation');
+						node.addOutput('Value');
+					}
+				}
+
+				let sampleTextureNode =
+				{
+					name: 'Sample Texture',
+
+					onInit: function(node)
+					{
+						node.addInput('UV');
+						node.addOutput('Color');
+					}
+				}
+
+				tree.addPopupOption('Color Blend',
+					'Used to mix two colors based on a percentage.',
+					colorNodesMenu).onclick = event =>
+						tree.addNode(buildPos(event), colorBlendNode);
+
+				tree.addPopupOption('RGBA Split',
+					'Used to split a color into seperate RGBA channels.',
+					colorNodesMenu).onclick = event =>
+						tree.addNode(buildPos(event), rgbaSplitNode);
+
+				tree.addPopupOption('RGB to HSV',
+					'Used to convert an RGB color into seperate HSV channels.',
+					converterColorNodesMenu).onclick = event =>
+						tree.addNode(buildPos(event), rgbToHsvNode);
+
+				tree.addPopupOption('Sample Texture',
+					'Samples a texture at a given UV coord.',
+					textureNodesMenu).onclick = event =>
+						tree.addNode(buildPos(event), sampleTextureNode);
+			}
+
+			function buildPos(event)
+			{
+				let x = event.clientX;
+				let y = event.clientY;
+				return new NodeGraph.Position(x, y, false).toWorld(tree.camera);
 			}
 		</script>
 	</header>

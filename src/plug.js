@@ -185,5 +185,26 @@ NodeGraph.Plug = class
 
 		ctx.lineWidth = plugBorderSize;
 		ctx.stroke();
+
+		let anyHover = false;
+		this.node.forEachPlug(plug => anyHover |= plug.hover);
+
+		if (anyHover)
+		{
+			ctx.fillStyle = this.node.tree.theme.plugFontColor;
+			ctx.font = this.node.tree.theme.plugFontSize * zoom + 'px '
+				+ this.node.tree.theme.plugFontFamily;
+			ctx.textAlign = this.isInput ? 'left' : 'right';
+			ctx.textBaseline = 'middle';
+
+			let x = pos.x;
+
+			if (this.isInput)
+				x += radius + plugBorderSize + 3 * zoom;
+			else
+				x -= radius + plugBorderSize + 3 * zoom;
+
+			ctx.fillText(this.name, x, pos.y);
+		}
 	}
 }

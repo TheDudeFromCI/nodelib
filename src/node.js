@@ -340,8 +340,9 @@ NodeGraph.Node = class
 		for (let i = 0; i < this.outputPlugs.length; i++)
 			this.outputPlugs[i].render(ctx);
 
-		ctx.font = this.tree.theme.fontSize * zoom + 'px '
-			+ this.tree.theme.fontFamily;
+		ctx.fillStyle = this.tree.theme.headerFontColor;
+		ctx.font = this.tree.theme.headerFontSize * zoom + 'px '
+			+ this.tree.theme.headerFontFamily;
 		ctx.textAlign = 'center';
 		ctx.textBaseline = 'middle';
 		ctx.fillText(this.name, pos.x + width / 2, pos.y + header / 2 * 1.05);

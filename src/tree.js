@@ -35,10 +35,14 @@ NodeGraph.Tree = class
 		this.lastFrame = 0;
 		this.repaint = true;
 
+		canvas.tabIndex = '1';
+
 		canvas.addEventListener('mousedown', e => this.onMouseDown(e));
 		canvas.addEventListener('mousemove', e => this.onMouseMove(e));
 		canvas.addEventListener('mouseup', e => this.onMouseUp(e));
 		canvas.addEventListener('mouseout', e => this.onMouseExit(e));
+		canvas.addEventListener('keyup', e => this.onKeyUp(e));
+
 		canvas.addEventListener('contextmenu', e => this.onContextMenu(e),
 			false);
 		canvas.addEventListener('mousewheel', e => this.onScroll(e),
@@ -55,6 +59,7 @@ NodeGraph.Tree = class
 	buildPopup()
 	{
 		this.popupOptions = [];
+		this.popupSubmenus = [];
 
 		let popup = document.createElement('div');
 		popup.classList.add('nodegraph-popup');
@@ -64,35 +69,54 @@ NodeGraph.Tree = class
 		this.popuptext.classList.add('nodegraph-popuptext');
 		popup.appendChild(this.popuptext);
 
+		/*
 		this.defaultPopup = this.addPopupOption('Empty', '');
 		this.defaultPopup.greyedOut = true;
+		*/
 	}
 
 	/*
 	 * Appends a new object to the bottom of the popup menu. This can be used
 	 * to customize how nodes should be interacted with. Returns the popup menu
 	 * object for the newly created option.
+	 *
+	 * menu -
+	 *     Determines what submenu to place this option in. If null, this option
+	 *     is placed in the main context folder. Otherwise, this option is
+	 *     placed within that submenu. Defaults to null. If submenu does not
+	 *     exist, or is not in the context menu, it is assumed to be null.
+	 * text -
+	 *     The text to show in the context menu.
+	 * tooltip -
+	 *     The tooltip to show when this option is moused over.
 	 */
-	addPopupOption(text, tooltip)
+	addPopupOption(text, tooltip, menu = null)
 	{
-		let elem1 = document.createElement('p');
+		if (menu == null)
+			menu = this.popuptext;
+
+		let elem1 = document.createElement('div');
 		elem1.innerHTML = text;
 		elem1.unselectable = 'on';
 		elem1.classList.add('nodegraph-unselectable');
-		this.popuptext.appendChild(elem1);
+		elem1.classList.add('nodegraph-menuoption');
+		menu.appendChild(elem1);
 
 		let tip1 = document.createElement('div');
 		tip1.innerHTML = tooltip;
 		tip1.unselectable = 'on';
 		tip1.classList.add('nodegraph-unselectable');
-		this.popuptext.appendChild(tip1);
+		tip1.classList.add('nodegraph-tooltip');
+		menu.appendChild(tip1);
 
-		let obj = new NodeGraph.PopupObject(this, elem1, tip1);
+		let obj = new NodeGraph.PopupObject(this, elem1, tip1, menu);
 		this.popupOptions.push(obj);
 
-		if (this.popupOptions.length == 2 && this.popupOptions[0]
-			=== this.defaultPopup)
-			this.removePopupOption(this.defaultPopup);
+		if (menu.empty != null)
+		{
+			this.removePopupOption(menu.empty);
+			menu.empty = null;
+		}
 
 		return obj;
 	}
@@ -112,14 +136,55 @@ NodeGraph.Tree = class
 
 		this.popupOptions.splice(index, 1);
 
-		this.popuptext.removeChild(option.element1);
-		this.popuptext.removeChild(option.element2);
+		option.menu.removeChild(option.element1);
+		option.menu.removeChild(option.element2);
 
-		if (this.popupOptions.length == 0)
+		if (option.menu.childElementCount == 0)
 		{
-			this.defaultPopup = this.addPopupOption('Empty', '');
-			this.defaultPopup.greyedOut = true;
+			option.menu.empty = this.addPopupOption('Empty', '', option.menu);
+			option.menu.empty.greyedOut = true;
 		}
+	}
+
+	/*
+	 * Creates a new nested context menu. This allows menu options to be placed
+	 * within it and grouped together. Menus can be nested.
+	 *
+	 * name -
+	 *     The name of this menu. This is the text that will appear in the
+	 *     context menu.
+	 * menu -
+	 *     Assigns this menu this submenu should be placed within. If null, this
+	 *     submenu will be appended to the main context menu. Defaults to null.
+	 */
+	createContextSubmenu(name, menu = null)
+	{
+		if (menu == null)
+			menu = this.popuptext;
+
+		let elem1 = document.createElement('div');
+		elem1.innerHTML = name;
+		elem1.unselectable = 'on';
+		elem1.classList.add('nodegraph-unselectable');
+		elem1.classList.add('nodegraph-menuoption');
+		menu.appendChild(elem1);
+
+		let elem3 = document.createElement('div');
+		elem3.unselectable = 'on';
+		elem3.classList.add('nodegraph-unselectable');
+		elem3.classList.add('nodegraph-menuArrow');
+		elem1.appendChild(elem3);
+
+		let elem2 = document.createElement('div');
+		elem2.classList.add('nodegraph-submenu');
+		menu.appendChild(elem2);
+
+		this.popupSubmenus.push(elem2);
+
+		elem2.empty = this.addPopupOption('Empty', '', elem2);
+		elem2.empty.greyedOut = true;
+
+		return elem2;
 	}
 
 	/*
@@ -168,6 +233,7 @@ NodeGraph.Tree = class
 	{
 		let node = new NodeGraph.Node(this, position, type, name);
 		this.nodes.push(node);
+		this.repaint = true;
 
 		return node;
 	}
@@ -190,6 +256,7 @@ NodeGraph.Tree = class
 			throw "Connection exists outside of tree!";
 
 		this.connections.push(connection);
+		this.repaint = true;
 
 		return connection;
 	}
@@ -233,8 +300,7 @@ NodeGraph.Tree = class
 		}
 
 		this.nodes.splice(nodeIndex, 1);
-
-		this.element.removeChild(node.element);
+		this.repaint = true;
 	}
 
 	/*
@@ -249,6 +315,8 @@ NodeGraph.Tree = class
 		let connectionIndex = this.connections.indexOf(connection);
 		if (connectionIndex != -1)
 			this.connections.splice(connectionIndex, 1);
+
+		this.repaint = true;
 	}
 
 	/*
@@ -702,5 +770,22 @@ NodeGraph.Tree = class
 		this.onMouseUp(event);
 
 		event.preventDefault();
+	}
+
+	onKeyUp(event)
+	{
+		if (event.keyCode == 46)
+		{
+			let nodes = [];
+
+			this.nodes.forEach(node =>
+			{
+				if (node.select)
+					nodes.push(node);
+			})
+
+			for (let node of nodes)
+				this.removeNode(node);
+		}
 	}
 }

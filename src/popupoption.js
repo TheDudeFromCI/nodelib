@@ -14,10 +14,11 @@ NodeGraph.PopupObject = class
 	 * element2 -
 	 *     The tooltip element.
 	 */
-	constructor(tree, element1, element2)
+	constructor(tree, element1, element2, menu)
 	{
 		this.element1 = element1;
 		this.element2 = element2;
+		this.menu = menu;
 
 		this._text = element1.innerHTML;
 		this._tooltip = element2.innerHTML;
