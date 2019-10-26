@@ -50,15 +50,10 @@ NodeGraph.Input = class
 		}
 	}
 
-	startInputRender()
-	{
-
-	}
-
 	destroy()
 	{
 		for (let input of this.settings)
-			this.input.destroy();
+			input.destroy();
 
 		this.settings = [];
 	}
