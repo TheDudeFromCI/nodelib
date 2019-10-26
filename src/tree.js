@@ -517,25 +517,40 @@ NodeGraph.Tree = class
 
 		this.cameraDrag = false;
 		this.firstMove = true;
+		this.mouseDownTime = new Date().getTime();
+
 		this.nodes.forEach(node => node.dragging = false);
 
 		if (event.which == 1)
 		{
 			this.mouseDown = true;
 
-			this.nodes.forEach(node =>
+			if (!event.shiftKey)
 			{
-				let select = node.isInBounds(x, y);
+				let justClicked = null;
 
-				if (event.shiftKey && node.select)
-					select = !select;
-
-				if (select != node.select)
+				this.nodes.forEach(node =>
 				{
-					node.select = select;
+					if (node.isInBounds(x, y))
+						justClicked = node;
+				});
+
+				if (justClicked != null)
+				{
+					this.nodes.forEach(node => node.select = false);
+					justClicked.select = true;
+
+					this.nodes.splice(this.nodes.indexOf(justClicked), 1);
+					this.nodes.push(justClicked);
+
 					this.repaint = true;
 				}
-			});
+				else
+				{
+					this.nodes.forEach(node => node.select = false);
+					this.repaint = true;
+				}
+			}
 		}
 		else if (event.which == 2)
 			this.cameraDrag = true;
@@ -647,6 +662,11 @@ NodeGraph.Tree = class
 
 		this.mouseDown = false;
 		this.cameraDrag = false;
+		this.justClicked = null;
+
+		let mouseTime = new Date().getTime() - this.mouseDownTime;
+		if (mouseTime <= 200)
+			this.onClick(event);
 
 		if (this.tempConnection != null)
 		{
@@ -685,6 +705,49 @@ NodeGraph.Tree = class
 			node.dragging = false;
 			node.position.setFrom(node.snapPos);
 		});
+	}
+
+	onClick(event)
+	{
+		let x = event.clientX;
+		let y = event.clientY;
+		let justClicked = null;
+
+		this.nodes.forEach(node =>
+		{
+			if (node.isInBounds(x, y))
+				justClicked = node;
+		});
+
+		if (justClicked == null)
+		{
+			if (!event.shiftKey)
+			{
+				this.nodes.forEach(node => node.select = false);
+				this.repaint = true;
+			}
+		}
+		else
+		{
+			if (event.shiftKey)
+			{
+				justClicked.select = !justClicked.select;
+
+				this.nodes.splice(this.nodes.indexOf(justClicked), 1);
+				this.nodes.push(justClicked);
+
+				this.repaint = true;
+			}
+			else
+			{
+				this.nodes.forEach(node => node.select = false);
+				justClicked.select = true;
+				this.repaint = true;
+
+				this.nodes.splice(this.nodes.indexOf(justClicked), 1);
+				this.nodes.push(justClicked);
+			}
+		}
 	}
 
 	/*
