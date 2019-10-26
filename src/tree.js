@@ -58,9 +58,6 @@ NodeGraph.Tree = class
 	 */
 	buildPopup()
 	{
-		this.popupOptions = [];
-		this.popupSubmenus = [];
-
 		let popup = document.createElement('div');
 		popup.classList.add('nodegraph-popup');
 		document.body.appendChild(popup);
@@ -69,10 +66,8 @@ NodeGraph.Tree = class
 		this.popuptext.classList.add('nodegraph-popuptext');
 		popup.appendChild(this.popuptext);
 
-		/*
-		this.defaultPopup = this.addPopupOption('Empty', '');
-		this.defaultPopup.greyedOut = true;
-		*/
+		this.popuptext.empty = this.addPopupOption('Empty', '', null, true);
+		this.popuptext.empty.greyedOut = true;
 	}
 
 	/*
@@ -90,10 +85,16 @@ NodeGraph.Tree = class
 	 * tooltip -
 	 *     The tooltip to show when this option is moused over.
 	 */
-	addPopupOption(text, tooltip, menu = null)
+	addPopupOption(text, tooltip, menu = null, isEmpty = false)
 	{
 		if (menu == null)
 			menu = this.popuptext;
+
+		if (!isEmpty && menu.empty != null)
+		{
+			this.removePopupOption(menu.empty, true);
+			menu.empty = null;
+		}
 
 		let elem1 = document.createElement('div');
 		elem1.innerHTML = text;
@@ -110,14 +111,6 @@ NodeGraph.Tree = class
 		menu.appendChild(tip1);
 
 		let obj = new NodeGraph.PopupObject(this, elem1, tip1, menu);
-		this.popupOptions.push(obj);
-
-		if (menu.empty != null)
-		{
-			this.removePopupOption(menu.empty);
-			menu.empty = null;
-		}
-
 		return obj;
 	}
 
@@ -128,20 +121,14 @@ NodeGraph.Tree = class
 	 * option -
 	 *     The option to remove.
 	 */
-	removePopupOption(option)
+	removePopupOption(option, isEmpty = false)
 	{
-		let index = this.popupOptions.indexOf(option);
-		if (index == -1)
-			return;
-
-		this.popupOptions.splice(index, 1);
-
 		option.menu.removeChild(option.element1);
 		option.menu.removeChild(option.element2);
 
-		if (option.menu.childElementCount == 0)
+		if (!isEmpty && option.menu.childElementCount == 0)
 		{
-			option.menu.empty = this.addPopupOption('Empty', '', option.menu);
+			option.menu.empty = this.addPopupOption('Empty', '', option.menu, true);
 			option.menu.empty.greyedOut = true;
 		}
 	}
@@ -162,6 +149,12 @@ NodeGraph.Tree = class
 		if (menu == null)
 			menu = this.popuptext;
 
+		if (menu.empty != null)
+		{
+			this.removePopupOption(menu.empty, true);
+			menu.empty = null;
+		}
+
 		let elem1 = document.createElement('div');
 		elem1.innerHTML = name;
 		elem1.unselectable = 'on';
@@ -179,9 +172,7 @@ NodeGraph.Tree = class
 		elem2.classList.add('nodegraph-submenu');
 		menu.appendChild(elem2);
 
-		this.popupSubmenus.push(elem2);
-
-		elem2.empty = this.addPopupOption('Empty', '', elem2);
+		elem2.empty = this.addPopupOption('Empty', '', elem2, true);
 		elem2.empty.greyedOut = true;
 
 		return elem2;
