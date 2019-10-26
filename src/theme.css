@@ -141,3 +141,14 @@
    -ms-user-select: none;
    user-select: none;
 }
+
+.nodegraph-inputsetting {
+	position: absolute;
+	display: block;
+	z-index: 1;
+	margin: 0px;
+	padding: 0px;
+	border: none;
+	outline: none;
+	box-sizing: border-box;
+}

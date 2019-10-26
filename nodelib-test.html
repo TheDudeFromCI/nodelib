@@ -39,6 +39,8 @@
 		<script src="src/utils.js"></script>
 		<script src="src/connectionstyle.js"></script>
 		<script src="src/popupoption.js"></script>
+		<script src="src/input.js"></script>
+		<script src="src/inputsetting.js"></script>
 
 		<script>
 			function onLoad()
@@ -64,6 +66,9 @@
 						node.addInput('Color 2');
 						node.addInput('Mix');
 						node.addOutput("Color");
+
+						node.input.addSetting(new NodeGraph.TextSetting('Text'));
+						node.input.addSetting(new NodeGraph.TextBlockSetting('Text'));
 					}
 				}
 

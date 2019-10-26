@@ -34,13 +34,14 @@ NodeGraph.Tree = class
 
 		this.lastFrame = 0;
 		this.repaint = true;
+		this.alive = true;
 
 		canvas.tabIndex = '1';
 
 		canvas.addEventListener('mousedown', e => this.onMouseDown(e));
 		canvas.addEventListener('mousemove', e => this.onMouseMove(e));
 		canvas.addEventListener('mouseup', e => this.onMouseUp(e));
-		canvas.addEventListener('mouseout', e => this.onMouseExit(e));
+		//canvas.addEventListener('mouseout', e => this.onMouseExit(e));
 		canvas.addEventListener('keyup', e => this.onKeyUp(e));
 
 		canvas.addEventListener('contextmenu', e => this.onContextMenu(e),
@@ -190,7 +191,8 @@ NodeGraph.Tree = class
 		if (this.needsUpdate())
 			this.update(delta);
 
-		requestAnimationFrame(time => this.animation(time));
+		if (this.alive)
+			requestAnimationFrame(time => this.animation(time));
 	}
 
 	/*
@@ -282,8 +284,8 @@ NodeGraph.Tree = class
 
 		for (let i = 0; i < this.connections.length; i++)
 		{
-			if (this.connections[i].node1 === node
-				|| this.connections[i].node2 === node)
+			if (this.connections[i].outputPlug.node === node
+				|| this.connections[i].inputPlug.node === node)
 			{
 				this.removeConnection(this.connections[i]);
 				i--;
@@ -291,6 +293,8 @@ NodeGraph.Tree = class
 		}
 
 		this.nodes.splice(nodeIndex, 1);
+		node.destroy();
+
 		this.repaint = true;
 	}
 
@@ -841,5 +845,16 @@ NodeGraph.Tree = class
 			for (let node of nodes)
 				this.removeNode(node);
 		}
+	}
+
+	destroy()
+	{
+		this.nodes.forEach(node => node.destroy());
+
+		this.nodes = [];
+		this.connections = [];
+		this.alive = false;
+
+		document.body.removeChild(this.popuptext.parentElement);
 	}
 }

@@ -33,6 +33,7 @@ NodeGraph.Node = class
 		this.snapPos = position.copy();
 		this.inputPlugs = [];
 		this.outputPlugs = [];
+		this.input = new NodeGraph.Input(this);
 
 		this.dragging = false;
 		this.hover = false;
@@ -124,6 +125,8 @@ NodeGraph.Node = class
 			this.posSmooth.lerpTo(this.snapPos, delta);
 		else
 			this.posSmooth.lerpTo(this.position, delta);
+
+		this.input.update();
 	}
 
 	/*
@@ -410,5 +413,10 @@ NodeGraph.Node = class
 	{
 		this.inputPlugs.forEach(run);
 		this.outputPlugs.forEach(run);
+	}
+
+	destroy()
+	{
+		this.input.destroy();
 	}
 }
