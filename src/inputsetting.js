@@ -14,10 +14,11 @@ NodeGraph.InputSetting = class
 
 		this.dom.classList.add('nodegraph-inputsetting');
 		this.dom.addEventListener('focus', e => this.onFocus(e));
-		this.dom.addEventListener('mousewheel', e => this.onScroll(e));
 		this.dom.addEventListener('mousedown', e => this.onMouseDown(e));
 		this.dom.addEventListener('mousemove', e => this.onMouseMove(e));
 		this.dom.addEventListener('mouseup', e => this.onMouseUp(e));
+		this.dom.addEventListener('mousewheel', e => this.onScroll(e),
+			{passive: true});
 	}
 
 	update(rect, zoom)
@@ -82,7 +83,7 @@ NodeGraph.InputSetting = class
 	}
 }
 
-NodeGraph.TextSetting = class extends NodeGraph.InputSetting
+NodeGraph.TextInputSetting = class extends NodeGraph.InputSetting
 {
 	constructor(tree, name)
 	{
@@ -104,5 +105,20 @@ NodeGraph.TextBlockSetting = class extends NodeGraph.InputSetting
 
 		this.dom.rows = this.lineHeight;
 		this.dom.style.resize = 'none';
+	}
+}
+
+NodeGraph.PlainTextSetting = class extends NodeGraph.InputSetting
+{
+	constructor(tree, name, alignLeft = false)
+	{
+		super(tree, name, 'p');
+
+		this.dom.innerHTML = name;
+
+		if (alignLeft)
+			this.dom.style.textAlign = 'left';
+		else
+			this.dom.style.textAlign = 'right';
 	}
 }

@@ -67,8 +67,14 @@
 						node.addInput('Mix');
 						node.addOutput("Color");
 
-						node.input.addSetting(new NodeGraph.TextSetting(tree, 'Text'));
-						node.input.addSetting(new NodeGraph.TextBlockSetting(tree, 'Text'));
+						node.input.addSetting(
+							new NodeGraph.PlainTextSetting(tree, 'Color'));
+
+						node.input.addSetting(
+							new NodeGraph.TextInputSetting(tree, 'Text'));
+
+						node.input.addSetting(
+							new NodeGraph.TextBlockSetting(tree, 'Text'));
 					}
 				}
 
