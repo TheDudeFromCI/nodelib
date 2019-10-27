@@ -57,4 +57,15 @@ NodeGraph.Input = class
 
 		this.settings = [];
 	}
+
+	setFocusable(state)
+	{
+		for (let input of this.settings)
+		{
+			input.focusable = state;
+
+			if (input.dom != null)
+				input.dom.style.pointerEvents = state ? 'auto' : 'none';
+		}
+	}
 }

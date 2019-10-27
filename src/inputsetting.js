@@ -1,92 +1,108 @@
 NodeGraph.InputSetting = class
 {
-	constructor(name)
+	constructor(tree, name, domType)
 	{
+		this.tree = tree;
 		this.name = name;
 		this.lineHeight = 1;
 		this.minWidth = 50;
+		this.focusable = true;
+		this.dom = null;
+
+		this.dom = document.createElement(domType);
+		document.body.appendChild(this.dom);
+
+		this.dom.classList.add('nodegraph-inputsetting');
+		this.dom.addEventListener('focus', e => this.onFocus(e));
+		this.dom.addEventListener('mousewheel', e => this.onScroll(e));
+		this.dom.addEventListener('mousedown', e => this.onMouseDown(e));
+		this.dom.addEventListener('mousemove', e => this.onMouseMove(e));
+		this.dom.addEventListener('mouseup', e => this.onMouseUp(e));
 	}
 
-	update()
+	update(rect, zoom)
 	{
+		let borderRadius = 4 * zoom;
+		let padding = 3 * zoom;
+		let fontSize = 16 * zoom;
 
+		this.dom.style.top = rect.y + 'px';
+		this.dom.style.left = rect.x + 'px';
+		this.dom.style.width = rect.width + 'px';
+		this.dom.style.height = rect.height + 'px';
+		this.dom.style.fontSize = fontSize + 'px';
+		this.dom.style.borderRadius = borderRadius + 'px';
+		this.dom.style.padding = padding + 'px';
 	}
 
 	destroy()
 	{
+		document.body.removeChild(this.dom);
+	}
+
+	onFocus(event)
+	{
+		if (this.focusable)
+			return;
+
+		event.preventDefault();
+
+		if (event.relatedTarget)
+			event.relatedTarget.focus();
+		else
+			event.currentTarget.blur();
+	}
+
+	onMouseDown(event)
+	{
+		if (event.which == 1)
+			return;
+
+		event.preventDefault();
+		this.tree.onMouseDown(event);
+	}
+
+	onMouseMove(event)
+	{
+		this.tree.onMouseMove(event);
+	}
+
+	onMouseUp(event)
+	{
+		if (event.which == 1)
+			return;
+
+		event.preventDefault();
+		this.tree.onMouseUp(event);
+	}
+
+	onScroll(event)
+	{
+		this.tree.onScroll(event);
 	}
 }
 
 NodeGraph.TextSetting = class extends NodeGraph.InputSetting
 {
-	constructor(name, isLong)
+	constructor(tree, name)
 	{
-		super(name);
+		super(tree, name, 'input');
+		this.dom.setAttribute("type", "text");
 
 		this.minWidth = 150;
-
-		this.textInput = document.createElement('input');
-		document.body.appendChild(this.textInput);
-
-		this.textInput.setAttribute("type", "text");
-		this.textInput.classList.add('nodegraph-inputsetting');
-	}
-
-	update(rect, zoom)
-	{
-		let borderRadius = 4 * zoom;
-		let padding = 3 * zoom;
-		let fontSize = 16 * zoom;
-
-		this.textInput.style.top = rect.y + 'px';
-		this.textInput.style.left = rect.x + 'px';
-		this.textInput.style.width = rect.width + 'px';
-		this.textInput.style.height = rect.height + 'px';
-		this.textInput.style.fontSize = fontSize + 'px';
-		this.textInput.style.borderRadius = borderRadius + 'px';
-		this.textInput.style.padding = padding + 'px';
-	}
-
-	destroy()
-	{
-		document.body.removeChild(this.textInput);
 	}
 }
 
 NodeGraph.TextBlockSetting = class extends NodeGraph.InputSetting
 {
-	constructor(name)
+	constructor(tree, name)
 	{
-		super(name);
+		super(tree, name, 'textarea');
 
 		this.lineHeight = 6;
 		this.minWidth = 150;
 
-		this.textInput = document.createElement('textarea');
-		document.body.appendChild(this.textInput);
-
-		this.textInput.classList.add('nodegraph-inputsetting');
-		this.textInput.rows = this.lineHeight;
-		this.textInput.style.resize = 'none';
-	}
-
-	update(rect, zoom)
-	{
-		let borderRadius = 4 * zoom;
-		let padding = 3 * zoom;
-		let fontSize = 16 * zoom;
-
-		this.textInput.style.top = rect.y + 'px';
-		this.textInput.style.left = rect.x + 'px';
-		this.textInput.style.width = rect.width + 'px';
-		this.textInput.style.height = rect.height + 'px';
-		this.textInput.style.fontSize = fontSize + 'px';
-		this.textInput.style.borderRadius = borderRadius + 'px';
-		this.textInput.style.padding = padding + 'px';
-	}
-
-	destroy()
-	{
-		document.body.removeChild(this.textInput);
+		this.dom.rows = this.lineHeight;
+		this.dom.style.resize = 'none';
 	}
 }

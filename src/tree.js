@@ -505,6 +505,8 @@ NodeGraph.Tree = class
 		if (event.which != 3)
 			this.popuptext.classList.toggle("nodegraph-show", false);
 
+		this.nodes.forEach(node => node.input.setFocusable(false));
+
 		let x = event.clientX;
 		let y = event.clientY;
 		this.lastMouseX = x;
@@ -652,6 +654,8 @@ NodeGraph.Tree = class
 	 */
 	onMouseUp(event)
 	{
+		this.nodes.forEach(node => node.input.setFocusable(true));
+
 		let x = event.clientX;
 		let y = event.clientY;
 
