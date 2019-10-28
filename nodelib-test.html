@@ -141,6 +141,24 @@
 					connectionColor: '#44AA44',
 				}
 
+				let booleanType =
+				{
+					plugColor: '#AA4444',
+
+					createSetting: function(plug)
+					{
+						return new NodeGraph.CheckboxSetting(plug.node.tree,
+							plug.name);
+					},
+
+					canConnectTo: function(type)
+					{
+						return type === this;
+					},
+
+					connectionColor: '#AA4444',
+				}
+
 				let colorBlendNode =
 				{
 					name: 'Color Blend',
@@ -189,6 +207,7 @@
 					{
 						node.addInput('UV', uvType);
 						node.addInput('Texture', textureType);
+						node.addInput('sRGB', booleanType);
 						node.addOutput('Color', colorType);
 					}
 				}

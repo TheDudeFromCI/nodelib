@@ -300,3 +300,32 @@ NodeGraph.DropdownSetting = class extends NodeGraph.InputSetting
 		}
 	}
 }
+
+
+NodeGraph.CheckboxSetting = class extends NodeGraph.InputSetting
+{
+	constructor(tree, name, value = false)
+	{
+		super(tree, name, 'input', false);
+
+		this.value = value;
+		this.minWidth = 30;
+
+		this.buildDom(this.domType);
+	}
+
+	buildDomLate()
+	{
+		this.dom.setAttribute("type", "checkbox");
+	}
+
+	updateLate(rect, zoom)
+	{
+		let s = 16 * zoom;
+
+		this.dom.style.top = rect.y + 'px';
+		this.dom.style.left = rect.x + 'px';
+		this.dom.style.width = s + 'px';
+		this.dom.style.height = s + 'px';
+	}
+}
