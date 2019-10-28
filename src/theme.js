@@ -18,17 +18,17 @@ NodeGraph.Theme = class
 		 * How smooth to make node dragging. Smaller values are more responsive
 		 * but jittery, while larger values are slower and smoother.
 		 */
-		this.nodeSmoothing = 0.01;
+		this.nodeSmoothing = 0.03;
 
 		/*
 		 * The font size, in world space, to render the header with.
 		 */
-		this.headerFontSize = 16;
+		this.headerFontSize = 20;
 
 		/*
 		 * The font size, in world space, to render plug names with.
 		 */
-		this.plugFontSize = 8;
+		this.plugFontSize = 16;
 
 		/*
 		 * The font to use when rendering the header name for nodes.
@@ -57,7 +57,7 @@ NodeGraph.Theme = class
 		 * width of a node is rounded up to the next grid size, if grids are
 		 * enabled.
 		 */
-		this.nodeWidth = 250;
+		this.nodeMinWidth = 100;
 
 		/*
 		 * The smallest height a node should be rendered at. The height of a node
@@ -181,7 +181,7 @@ NodeGraph.Theme = class
 		/*
 		 * If true, grids are only rendered and have no effect on behavior.
 		 */
-		this.gridRenderOnly = false;
+		this.gridRenderOnly = true;
 
 		/*
 		 * The number of grid segements before rendering it as a major grid line.

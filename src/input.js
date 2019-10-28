@@ -15,7 +15,9 @@ NodeGraph.Input = class
 
 	update()
 	{
-		let zoom = this.node.tree.camera.zoomSmooth;
+		let camera = this.node.tree.camera;
+		let zoom = camera.zoomSmooth;
+
 		let width = (this.node.width - 20) * zoom;
 		let height = this.settingHeight * zoom;
 
@@ -35,6 +37,34 @@ NodeGraph.Input = class
 		}
 	}
 
+	render(ctx)
+	{
+		let camera = this.node.tree.camera;
+		let zoom = camera.zoomSmooth;
+		let width = (this.node.width - 20) * zoom;
+		let height = this.settingHeight * zoom;
+
+		let pos = this.node.posSmooth.copy();
+		pos.shift(10, this.node.tree.theme.nodeHeaderSize + 3);
+		pos = pos.toScreen(camera);
+
+		let rect = {x: pos.x, y: pos.y, width: width, height: height};
+		let buffer = 3 * zoom;
+
+		ctx.fillStyle = this.node.tree.theme.plugFontColor;
+		ctx.font = this.node.tree.theme.plugFontSize * camera.zoomSmooth
+			+ 'px ' + this.node.tree.theme.plugFontFamily;
+		ctx.textBaseline = 'middle';
+
+		for (let input of this.settings)
+		{
+			rect.height = height * input.lineHeight;
+
+			input.drawName(ctx, rect, height);
+			rect.y += input.lineHeight * height + buffer;
+		}
+	}
+
 	plugPositions()
 	{
 		let plugs = {inputs: [], outputs: []};
@@ -42,7 +72,6 @@ NodeGraph.Input = class
 		let pos = this.node.posSmooth.copy();
 		pos.y += this.node.tree.theme.nodeHeaderSize + 3 + this.settingHeight / 2;
 
-		let buffer = 3;
 		let height = this.settingHeight;
 		let width = this.node.width;
 
@@ -53,7 +82,7 @@ NodeGraph.Input = class
 			else
 				plugs.inputs.push({x: pos.x, y: pos.y, plug: input.plug});
 
-			pos.y += input.lineHeight * height + buffer;
+			pos.y += input.lineHeight * height + 3;
 		}
 
 		return plugs;

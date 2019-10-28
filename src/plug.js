@@ -185,6 +185,10 @@ NodeGraph.Plug = class
 			.distanceSquared(new NodeGraph.Position(x, y)) < radius;
 	}
 
+	/*
+	 * Renders this plug to the screen. This is an internal function and
+	 * should not be called externally.
+	 */
 	render(ctx)
 	{
 		let zoom = this.node.tree.camera.zoomSmooth;

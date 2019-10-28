@@ -519,9 +519,10 @@ NodeGraph.Tree = class
 
 		this.cameraDrag = false;
 		this.firstMove = true;
+		this.resizing = false;
 		this.mouseDownTime = new Date().getTime();
 
-		this.nodes.forEach(node => node.dragging = false);
+		this.nodes.forEach(node => node.dragging = node.resizing = false);
 
 		if (event.which == 1)
 		{
@@ -541,6 +542,13 @@ NodeGraph.Tree = class
 				{
 					this.nodes.forEach(node => node.select = false);
 					justClicked.select = true;
+
+					justClicked.resizeDir = justClicked.getResizeDir(x, y);
+					if (justClicked.resizeDir != 'none')
+					{
+						justClicked.resizing = true;
+						this.resizing = true;
+					}
 
 					this.nodes.splice(this.nodes.indexOf(justClicked), 1);
 					this.nodes.push(justClicked);
@@ -619,7 +627,7 @@ NodeGraph.Tree = class
 				}
 			}
 
-			let hasGrid = this.theme.hasGridBehaviour;
+			let hasGrid = this.theme.hasGridBehavior;
 			let grid = this.theme.gridSize;
 
 			if (this.tempConnection != null)
@@ -640,23 +648,37 @@ NodeGraph.Tree = class
 				let dx = (x - this.lastMouseX) / this.camera.zoomSmooth;
 				let dy = (y - this.lastMouseY) / this.camera.zoomSmooth;
 
-				this.nodes.forEach(node =>
+				if (this.resizing)
 				{
-					if (!node.select)
-						return;
-
-					node.dragging = true;
-					node.position.x += dx;
-					node.position.y += dy;
-
-					if (hasGrid)
-						node.snapPos.setFrom(node.position);
-					else
+					this.nodes.forEach(node =>
 					{
-						node.snapPos.x = Math.round(node.position.x / grid) * grid;
-						node.snapPos.y = Math.round(node.position.y / grid) * grid;
-					}
-				});
+						if (!node.resizing)
+							return;
+
+						node.applyResize(dx, dy);
+						this.repaint = true;
+					});
+				}
+				else
+				{
+					this.nodes.forEach(node =>
+					{
+						if (!node.select)
+							return;
+
+						node.dragging = true;
+						node.position.x += dx;
+						node.position.y += dy;
+
+						if (hasGrid)
+						{
+							node.snapPos.x = Math.round(node.position.x / grid) * grid;
+							node.snapPos.y = Math.round(node.position.y / grid) * grid;
+						}
+						else
+							node.snapPos.setFrom(node.position);
+					});
+				}
 			}
 		}
 
@@ -664,6 +686,20 @@ NodeGraph.Tree = class
 		{
 			this.camera.x -= x - this.lastMouseX;
 			this.camera.y -= y - this.lastMouseY;
+		}
+
+		if (!this.mouseDown && !this.cameraDrag)
+		{
+			let resize = 'auto';
+
+			this.nodes.forEach(node =>
+			{
+				let r = node.getResizeDir(x, y);
+				if (r != 'none')
+					resize = r;
+			});
+
+			this.canvas.style.cursor = resize;
 		}
 
 		this.lastMouseX = x;
@@ -683,6 +719,7 @@ NodeGraph.Tree = class
 
 		this.mouseDown = false;
 		this.cameraDrag = false;
+		this.resizing = false;
 		this.justClicked = null;
 
 		let mouseTime = new Date().getTime() - this.mouseDownTime;

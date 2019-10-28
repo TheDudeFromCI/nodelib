@@ -28,6 +28,9 @@ NodeGraph.Node = class
 		this.id = NodeGraph.Utils.randomGuid();
 		this.type= type;
 
+		this._width = 0;
+		this._height = 0;
+
 		this.position = position;
 		this.posSmooth = position.copy();
 		this.snapPos = position.copy();
@@ -36,7 +39,10 @@ NodeGraph.Node = class
 		this.input = new NodeGraph.Input(this);
 
 		this.dragging = false;
+		this.resizing = false;
+		this.resizeDir = null;
 		this.hover = false;
+		this.select = false;
 
 		if (tree.theme.hasGridBehavior)
 		{
@@ -186,7 +192,7 @@ NodeGraph.Node = class
 	 */
 	get width()
 	{
-		let width = Math.max(this.tree.theme.nodeWidth, this.input.minWidth);
+		let width = Math.max(this._width, this.minWidth);
 
 		if (this.tree.theme.hasGridBehavior)
 		{
@@ -198,12 +204,35 @@ NodeGraph.Node = class
 	}
 
 	/*
+	 * Gets the smallest width this node can be.
+	 */
+	get minWidth()
+	{
+		let width = Math.max(this.tree.theme.nodeMinWidth, this.input.minWidth);
+
+		let title = 0;
+		{
+			let c = this.tree.canvas;
+			var ctx = c.getContext("2d");
+			
+			ctx.save();
+
+			ctx.font = this.tree.theme.headerFontSize + 'px '
+				+ this.tree.theme.headerFontFamily;
+			title = ctx.measureText(this.name).width + 20;
+
+			ctx.restore();
+		}
+
+		return Math.max(width, title);
+	}
+
+	/*
 	 * Gets the height of this node in world space.
 	 */
 	get height()
 	{
-		let height = Math.max(this.tree.theme.nodeMinHeight,
-			this.tree.theme.nodeHeaderSize + this.input.height);
+		let height = Math.max(this._height, this.minHeight);
 
 		if (this.tree.theme.hasGridBehavior)
 		{
@@ -212,6 +241,15 @@ NodeGraph.Node = class
 		}
 
 		return height;
+	}
+
+	/*
+	 * Gets the smallest height this node can be.
+	 */
+	get minHeight()
+	{
+		return Math.max(this.tree.theme.nodeMinHeight,
+			this.tree.theme.nodeHeaderSize + this.input.height) + 3;
 	}
 
 	/*
@@ -348,6 +386,8 @@ NodeGraph.Node = class
 		ctx.textAlign = 'center';
 		ctx.textBaseline = 'middle';
 		ctx.fillText(this.name, pos.x + width / 2, pos.y + header / 2 * 1.05);
+
+		this.input.render(ctx);
 	}
 
 	/*
@@ -390,9 +430,11 @@ NodeGraph.Node = class
 
 	/*
 	 * Checks if the given screen space position is within the bounds of this
-	 * node or not.
+	 * node or not. If an addition radius is added, through r, this is counted
+	 * as within bounds as well. This is used for hovering on resize events
+	 * as well.
 	 */
-	isInBounds(x, y)
+	isInBounds(x, y, r = 5)
 	{
 		let camera = this.tree.camera;
 		let zoom = camera.zoomSmooth;
@@ -401,8 +443,153 @@ NodeGraph.Node = class
 		let width = this.width * zoom;
 		let height = this.height * zoom;
 
-		return x >= pos.x && x < pos.x + width && y >= pos.y
-			&& y < pos.y + height;
+		return x >= pos.x  - r && x < pos.x + width + r && y >= pos.y - r
+			&& y < pos.y + height + r;
+	}
+
+	/*
+	 * Checks if the given screen coordinates overlap the edge of this node,
+	 * without overlapping and plugs. The thickness of the edge is defined by r.
+	 * If the given coords are on the edge of this node, then the resize
+	 * direction is returned. Otherwise, 'none' is returned.
+	 */
+	getResizeDir(x, y, r = 5)
+	{
+		let camera = this.tree.camera;
+		let zoom = camera.zoomSmooth;
+
+		let pos = this.posSmooth.toScreen(camera);
+		let width = this.width * zoom;
+		let height = this.height * zoom;
+
+		if (x < pos.x - r || x > pos.x + width + r
+			|| y < pos.y - r || y > pos.y + height + r)
+			return 'none';
+
+		if (x > pos.x + r && x < pos.x + width - r
+			&& y > pos.y + r && y < pos.y + height - r)
+			return 'none';
+
+		let plugHover = false;
+		this.forEachPlug(plug => plugHover |= plug.isInBounds(x, y));
+
+		if (plugHover)
+			return 'none';
+
+		let north = y > pos.y - r && y < pos.y + r;
+		let east = x > pos.x + width - r && x < pos.x + width + r;
+		let south = y > pos.y + height - r && y < pos.y + height + r;
+		let west = x > pos.x - r && x < pos.x + r;
+
+		if (north && !east && !south && !west)
+			return 'n-resize';
+
+		if (north && east && !south && !west)
+			return 'ne-resize';
+
+		if (north && !east && !south && west)
+			return 'nw-resize';
+
+		if (!north && east && !south && !west)
+			return 'e-resize';
+
+		if (!north && !east && south && !west)
+			return 's-resize';
+
+		if (!north && east && south && !west)
+			return 'se-resize';
+
+		if (!north && !east && south && west)
+			return 'sw-resize';
+
+		if (!north && !east && !south && west)
+			return 'w-resize';
+
+		return 'none';
+	}
+
+	/*
+	 * Applys a resize event to this node, based on this node's current
+	 * resizeDir property.
+	 */
+	applyResize(dx, dy)
+	{
+		this._height = Math.max(this.minHeight, this._height);
+		this._width = Math.max(this.minWidth, this._width);
+
+		switch (this.resizeDir)
+		{
+			case 'n-resize':
+				dy = Math.min(dy, this._height - this.minHeight);
+
+				this.position.y += dy;
+				this.snapPos.y += dy;
+				this.posSmooth.y += dy;
+
+				this._height -= dy;
+				break;
+
+			case 'ne-resize':
+				dy = Math.min(dy, this._height - this.minHeight);
+
+				this.position.y += dy;
+				this.snapPos.y += dy;
+				this.posSmooth.y += dy;
+
+				this._width += dx;
+				this._height -= dy;
+				break;
+
+			case 'nw-resize':
+				dx = Math.min(dx, this._width - this.minWidth);
+				dy = Math.min(dy, this._height - this.minHeight);
+
+				this.position.x += dx;
+				this.snapPos.x += dx;
+				this.posSmooth.x += dx;
+
+				this.position.y += dy;
+				this.snapPos.y += dy;
+				this.posSmooth.y += dy;
+
+				this._width -= dx;
+				this._height -= dy;
+				break;
+
+			case 'e-resize':
+				this._width += dx;
+				break;
+
+			case 's-resize':
+				this._height += dy;
+				break;
+
+			case 'se-resize':
+				this._width += dx;
+				this._height += dy;
+				break;
+
+			case 'sw-resize':
+				dx = Math.min(dx, this._width - this.minWidth);
+
+				this.position.x += dx;
+				this.snapPos.x += dx;
+				this.posSmooth.x += dx;
+
+				this._width -= dx;
+				this._height += dy;
+				break;
+
+			case 'w-resize':
+				dx = Math.min(dx, this._width - this.minWidth);
+
+				this.position.x += dx;
+				this.snapPos.x += dx;
+				this.posSmooth.x += dx;
+
+				this._width -= dx;
+				break;
+		}
 	}
 
 	/*

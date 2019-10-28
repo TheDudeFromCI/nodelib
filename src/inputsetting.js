@@ -10,6 +10,7 @@ NodeGraph.InputSetting = class
 		this.isOutput = isOutput;
 		this.filled = false;
 		this.unfocusable = false;
+		this.hasTitle = true;
 
 		this.domType = domType;
 	}
@@ -41,25 +42,31 @@ NodeGraph.InputSetting = class
 		this.filled = state;
 		this.focusable = !state;
 
-		this.buildDom(this.filled ? 'p' : this.domType);
+		if (this.filled)
+			this.destroy();
+		else
+			this.buildDom(this.domType);
 
 		if (this.filled)
-		{
 			this.lineHeight = 1;
-			this.dom.innerHTML = this.name;
-
-			if (this.isOutput)
-				this.dom.style.textAlign = 'right';
-			else
-				this.dom.style.textAlign = 'left';
-		}
 	}
 
 	update(rect, zoom)
 	{
+		if (this.dom == null)
+			return;
+
+		if (this.hasName)
+		{
+			rect = {x: rect.x, y: rect.y, width: rect.width, height: rect.height};
+
+			rect.width /= 2;
+			rect.x += rect.width;
+		}
+
 		let borderRadius = 4 * zoom;
 		let padding = 3 * zoom;
-		let fontSize = 16 * zoom;
+		let fontSize = this.tree.theme.plugFontSize * zoom;
 
 		this.dom.style.top = rect.y + 'px';
 		this.dom.style.left = rect.x + 'px';
@@ -68,6 +75,9 @@ NodeGraph.InputSetting = class
 		this.dom.style.fontSize = fontSize + 'px';
 		this.dom.style.borderRadius = borderRadius + 'px';
 		this.dom.style.padding = padding + 'px';
+
+		if (this.updateLate != null)
+			this.updateLate(rect, zoom);
 	}
 
 	setFocusable(state)
@@ -83,7 +93,8 @@ NodeGraph.InputSetting = class
 
 	destroy()
 	{
-		document.body.removeChild(this.dom);
+		if (this.dom != null)
+			document.body.removeChild(this.dom);
 	}
 
 	onFocus(event)
@@ -126,6 +137,36 @@ NodeGraph.InputSetting = class
 	{
 		this.tree.onScroll(event);
 	}
+
+	drawName(ctx, rect, lineHeight)
+	{
+		if (!this.hasName)
+			return;
+
+		let y = rect.y + lineHeight / 2;
+
+		if (this.isOutput)
+		{
+			ctx.textAlign = 'right';
+			ctx.fillText(this.name, rect.x + rect.width, y);
+		}
+		else
+		{
+			ctx.textAlign = 'left';
+			ctx.fillText(this.name, rect.x, y);
+		}
+	}
+
+	get hasName()
+	{
+		if (this.dom == null)
+			return true;
+
+		if (this.isOutput)
+			return false;
+
+		return true;
+	}
 }
 
 NodeGraph.TextInputSetting = class extends NodeGraph.InputSetting
@@ -134,6 +175,7 @@ NodeGraph.TextInputSetting = class extends NodeGraph.InputSetting
 	{
 		super(tree, name, 'input', false);
 		this.minWidth = 150;
+		this.hasTitle = false;
 
 		this.buildDom(this.domType);
 	}
@@ -168,21 +210,7 @@ NodeGraph.PlainTextSetting = class extends NodeGraph.InputSetting
 {
 	constructor(tree, name, isOutput)
 	{
-		super(tree, name, 'p', isOutput);
-		this.unfocusable = true;
-
-		this.setFocusable(false);
-		this.buildDom(this.domType);
-	}
-
-	buildDomLate()
-	{
-		this.dom.innerHTML = this.name;
-
-		if (this.isOutput)
-			this.dom.style.textAlign = 'right';
-		else
-			this.dom.style.textAlign = 'left';
+		super(tree, name, null, isOutput);
 	}
 }
 
@@ -226,5 +254,11 @@ NodeGraph.RangeSetting = class extends NodeGraph.InputSetting
 		this.dom.setAttribute("max", this.max);
 		this.dom.setAttribute("step", this.step);
 		this.dom.setAttribute("value", this.value);
+	}
+
+	updateLate(rect, zoom)
+	{
+		let html = document.getElementsByTagName('html')[0];
+		html.style.cssText = '--nodegraph-sliderSize: ' + (25 * zoom) + 'px';
 	}
 }
