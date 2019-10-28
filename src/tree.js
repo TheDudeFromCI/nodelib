@@ -598,9 +598,26 @@ NodeGraph.Tree = class
 
 		if (this.mouseDown)
 		{
-			if (hoverPlug != null && this.firstMove && !hoverPlug.isInput)
-				this.tempConnection = new NodeGraph.Connection(this, hoverPlug,
-					this.tempConnectionPlug);
+			if (hoverPlug != null && this.firstMove)
+			{
+				if (hoverPlug.isInput)
+				{
+					let list = this.findConnections({inputPlug: hoverPlug});
+					if (list.length > 0)
+					{
+						let con = list[0];
+						this.removeConnection(con);
+
+						this.tempConnection = new NodeGraph.Connection(this, con.outputPlug,
+							this.tempConnectionPlug);
+					}
+				}
+				else
+				{
+					this.tempConnection = new NodeGraph.Connection(this, hoverPlug,
+						this.tempConnectionPlug);
+				}
+			}
 
 			let hasGrid = this.theme.hasGridBehaviour;
 			let grid = this.theme.gridSize;
