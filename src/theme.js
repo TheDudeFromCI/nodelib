@@ -65,7 +65,7 @@ NodeGraph.Theme = class
 		 * the name of the node. this value is in world space. The height of a
 		 * node is increased to the next grid size, if grid behavior is enabled.
 		 */
-		this.nodeMinHeight = 250;
+		this.nodeMinHeight = 50;
 
 		/*
 		 * Determines the width of connection lines in number of pixels. This
@@ -90,14 +90,6 @@ NodeGraph.Theme = class
 		 * This value is in world space.
 		 */
 		this.plugRadius = 8;
-
-		/*
-		 * When laying out plugs on a node, this is used to determine how close
-		 * or far they should be spaced out in pixels. This value is the smallest
-		 * distance two plugs can be, counting from the center of one plug to the
-		 * center of the other. This value is in world space.
-		 */
-		this.plugSpacing = 20;
 
 		/*
 		 * The size, in pixels, of the border for each plug. This value is in

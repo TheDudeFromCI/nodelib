@@ -186,7 +186,7 @@ NodeGraph.Node = class
 	 */
 	get width()
 	{
-		let width = this.tree.theme.nodeWidth;
+		let width = Math.max(this.tree.theme.nodeWidth, this.input.minWidth);
 
 		if (this.tree.theme.hasGridBehavior)
 		{
@@ -203,8 +203,7 @@ NodeGraph.Node = class
 	get height()
 	{
 		let height = Math.max(this.tree.theme.nodeMinHeight,
-			Math.max(this.inputPlugs.length, this.outputPlugs.length)
-			* this.tree.theme.plugSpacing);
+			this.tree.theme.nodeHeaderSize + this.input.height);
 
 		if (this.tree.theme.hasGridBehavior)
 		{

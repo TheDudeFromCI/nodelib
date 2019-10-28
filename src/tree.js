@@ -251,6 +251,8 @@ NodeGraph.Tree = class
 		this.connections.push(connection);
 		this.repaint = true;
 
+		inputPlug.setting.setFilled(true);
+
 		return connection;
 	}
 
@@ -308,8 +310,11 @@ NodeGraph.Tree = class
 	removeConnection(connection)
 	{
 		let connectionIndex = this.connections.indexOf(connection);
-		if (connectionIndex != -1)
-			this.connections.splice(connectionIndex, 1);
+		if (connectionIndex == -1)
+			return;
+
+		this.connections.splice(connectionIndex, 1);
+		connection.inputPlug.setting.setFilled(false);
 
 		this.repaint = true;
 	}
@@ -593,7 +598,7 @@ NodeGraph.Tree = class
 
 		if (this.mouseDown)
 		{
-			if (hoverPlug != null && this.firstMove)
+			if (hoverPlug != null && this.firstMove && !hoverPlug.isInput)
 				this.tempConnection = new NodeGraph.Connection(this, hoverPlug,
 					this.tempConnectionPlug);
 

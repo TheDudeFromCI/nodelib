@@ -56,25 +56,65 @@
 				let converterColorNodesMenu = tree.createContextSubmenu('Converter',
 					colorNodesMenu);
 
+				let colorType =
+				{
+					plugColor: '#4444AA',
+
+					createSetting: function(plug)
+					{
+						return new NodeGraph.TextInputSetting(plug.node.tree,
+							plug.name);
+					},
+
+					canConnectTo: function(type)
+					{
+						return type === this;
+					}
+				}
+
+				let numberType =
+				{
+					plugColor: '#AA4444',
+
+					createSetting: function(plug)
+					{
+						return new NodeGraph.PlainTextSetting(plug.node.tree,
+							plug.name, false);
+					},
+
+					canConnectTo: function(type)
+					{
+						return type === this
+							|| type === colorType;
+					}
+				}
+
+				let uvType =
+				{
+					plugColor: '#AAAA44',
+
+					createSetting: function(plug)
+					{
+						return new NodeGraph.PlainTextSetting(plug.node.tree,
+							plug.name, false);
+					},
+
+					canConnectTo: function(type)
+					{
+						return type === this;
+					}
+				}
+
 				let colorBlendNode =
 				{
 					name: 'Color Blend',
 
 					onInit: function(node)
 					{
-						node.addInput('Color 1');
-						node.addInput('Color 2');
-						node.addInput('Mix');
-						node.addOutput("Color");
-
-						node.input.addSetting(
-							new NodeGraph.PlainTextSetting(tree, 'Color'));
-
-						node.input.addSetting(
-							new NodeGraph.TextInputSetting(tree, 'Text'));
-
-						node.input.addSetting(
-							new NodeGraph.TextBlockSetting(tree, 'Text'));
+						node.addInput('Color 1', colorType);
+						node.addInput('Color 2', colorType);
+						node.addInput('Mix', numberType);
+						node.addOutput("Color", colorType);
 					}
 				}
 
@@ -84,11 +124,11 @@
 
 					onInit: function(node)
 					{
-						node.addInput('Color');
-						node.addOutput('R');
-						node.addOutput('G');
-						node.addOutput('B');
-						node.addOutput('A');
+						node.addInput('Color', colorType);
+						node.addOutput('R', numberType);
+						node.addOutput('G', numberType);
+						node.addOutput('B', numberType);
+						node.addOutput('A', numberType);
 					}
 				}
 
@@ -98,10 +138,10 @@
 
 					onInit: function(node)
 					{
-						node.addInput('RGB');
-						node.addOutput('Hue');
-						node.addOutput('Saturation');
-						node.addOutput('Value');
+						node.addInput('RGB', colorType);
+						node.addOutput('Hue', numberType);
+						node.addOutput('Saturation', numberType);
+						node.addOutput('Value', numberType);
 					}
 				}
 
@@ -111,8 +151,18 @@
 
 					onInit: function(node)
 					{
-						node.addInput('UV');
-						node.addOutput('Color');
+						node.addInput('UV', uvType);
+						node.addOutput('Color', colorType);
+					}
+				}
+
+				let pixelInfoNode =
+				{
+					name: 'Pixel Info',
+
+					onInit: function(node)
+					{
+						node.addOutput('UV', uvType);
 					}
 				}
 
@@ -135,6 +185,11 @@
 					'Samples a texture at a given UV coord.',
 					textureNodesMenu).onclick = event =>
 						tree.addNode(buildPos(event), sampleTextureNode);
+
+				tree.addPopupOption('Pixel Info',
+					'Information about the current pixel.',
+					textureNodesMenu).onclick = event =>
+						tree.addNode(buildPos(event), pixelInfoNode);
 			}
 
 			function buildPos(event)

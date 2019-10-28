@@ -4,10 +4,6 @@ NodeGraph.Input = class
 	{
 		this.node = node;
 
-		//this.canvas = document.createElement('canvas');
-		this.width = node.width;
-		this.height = 0;
-
 		this.settingHeight = 24;
 		this.settings = [];
 	}
@@ -15,27 +11,16 @@ NodeGraph.Input = class
 	addSetting(setting)
 	{
 		this.settings.push(setting);
-		this.recalculateHeight();
-	}
-
-	recalculateHeight()
-	{
-		let height = 0;
-
-		for (let setting of this.settings)
-			height += setting.lines * this.settingHeight;
-
-		this.height = height;
 	}
 
 	update()
 	{
 		let zoom = this.node.tree.camera.zoomSmooth;
-		let width = (this.node.width - 10) * zoom;
+		let width = (this.node.width - 20) * zoom;
 		let height = this.settingHeight * zoom;
 
 		let pos = this.node.posSmooth.copy();
-		pos.shift(5, this.node.tree.theme.nodeHeaderSize + 4);
+		pos.shift(10, this.node.tree.theme.nodeHeaderSize + 3);
 		pos = pos.toScreen(this.node.tree.camera);
 
 		let rect = {x: pos.x, y: pos.y, width: width, height: height};
@@ -50,6 +35,50 @@ NodeGraph.Input = class
 		}
 	}
 
+	plugPositions()
+	{
+		let plugs = {inputs: [], outputs: []};
+
+		let pos = this.node.posSmooth.copy();
+		pos.y += this.node.tree.theme.nodeHeaderSize + 3 + this.settingHeight / 2;
+
+		let buffer = 3;
+		let height = this.settingHeight;
+		let width = this.node.width;
+
+		for (let input of this.settings)
+		{
+			if (input.isOutput)
+				plugs.outputs.push({x: pos.x + width, y: pos.y, plug: input.plug});
+			else
+				plugs.inputs.push({x: pos.x, y: pos.y, plug: input.plug});
+
+			pos.y += input.lineHeight * height + buffer;
+		}
+
+		return plugs;
+	}
+
+	get height()
+	{
+		let h = 0;
+
+		for (let input of this.settings)
+			h += input.lineHeight * this.settingHeight + 3;
+
+		return h;
+	}
+
+	get minWidth()
+	{
+		let w = 0;
+
+		for (let input of this.settings)
+			w = Math.max(w, input.minWidth);
+
+		return w;
+	}
+
 	destroy()
 	{
 		for (let input of this.settings)
@@ -61,11 +90,6 @@ NodeGraph.Input = class
 	setFocusable(state)
 	{
 		for (let input of this.settings)
-		{
-			input.focusable = state;
-
-			if (input.dom != null)
-				input.dom.style.pointerEvents = state ? 'auto' : 'none';
-		}
+			input.setFocusable(state);
 	}
 }

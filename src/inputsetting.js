@@ -1,15 +1,26 @@
 NodeGraph.InputSetting = class
 {
-	constructor(tree, name, domType)
+	constructor(tree, name, domType, isOutput)
 	{
 		this.tree = tree;
 		this.name = name;
 		this.lineHeight = 1;
 		this.minWidth = 50;
 		this.focusable = true;
-		this.dom = null;
+		this.isOutput = isOutput;
+		this.filled = false;
+		this.unfocusable = false;
 
-		this.dom = document.createElement(domType);
+		this.domType = domType;
+		this.buildDom(domType);
+	}
+
+	buildDom(type)
+	{
+		if (this.dom != null)
+			document.body.removeChild(this.dom);
+
+		this.dom = document.createElement(type);
 		document.body.appendChild(this.dom);
 
 		this.dom.classList.add('nodegraph-inputsetting');
@@ -19,6 +30,30 @@ NodeGraph.InputSetting = class
 		this.dom.addEventListener('mouseup', e => this.onMouseUp(e));
 		this.dom.addEventListener('mousewheel', e => this.onScroll(e),
 			{passive: true});
+
+		this.setFocusable(this.focusable);
+
+		if (this.buildDomLate != null && !this.filled)
+			this.buildDomLate();
+	}
+
+	setFilled(state)
+	{
+		this.filled = state;
+		this.focusable = !state;
+
+		this.buildDom(this.filled ? 'p' : this.domType);
+
+		if (this.filled)
+		{
+			this.lineHeight = 1;
+			this.dom.innerHTML = this.name;
+
+			if (this.isOutput)
+				this.dom.style.textAlign = 'right';
+			else
+				this.dom.style.textAlign = 'left';
+		}
 	}
 
 	update(rect, zoom)
@@ -34,6 +69,17 @@ NodeGraph.InputSetting = class
 		this.dom.style.fontSize = fontSize + 'px';
 		this.dom.style.borderRadius = borderRadius + 'px';
 		this.dom.style.padding = padding + 'px';
+	}
+
+	setFocusable(state)
+	{
+		if (this.unfocusable)
+			state = false;
+
+		this.focusable = state;
+
+		if (this.dom != null)
+			this.dom.style.pointerEvents = state ? 'auto' : 'none';
 	}
 
 	destroy()
@@ -87,38 +133,51 @@ NodeGraph.TextInputSetting = class extends NodeGraph.InputSetting
 {
 	constructor(tree, name)
 	{
-		super(tree, name, 'input');
-		this.dom.setAttribute("type", "text");
-
+		super(tree, name, 'input', false);
 		this.minWidth = 150;
+	}
+
+	buildDomLate()
+	{
+		this.dom.setAttribute("type", "text");
 	}
 }
 
 NodeGraph.TextBlockSetting = class extends NodeGraph.InputSetting
 {
-	constructor(tree, name)
+	constructor(tree, name, rows)
 	{
-		super(tree, name, 'textarea');
+		super(tree, name, 'textarea', false);
 
-		this.lineHeight = 6;
-		this.minWidth = 150;
+		this.rows = rows;
+		this.minWidth = 200;
+	}
 
-		this.dom.rows = this.lineHeight;
+	buildDomLate()
+	{
+		this.lineHeight = this.rows;
+		this.dom.rows = this.rows;
 		this.dom.style.resize = 'none';
 	}
 }
 
 NodeGraph.PlainTextSetting = class extends NodeGraph.InputSetting
 {
-	constructor(tree, name, alignLeft = false)
+	constructor(tree, name, isOutput)
 	{
-		super(tree, name, 'p');
+		super(tree, name, 'p', isOutput);
+		this.unfocusable = true;
+	}
 
-		this.dom.innerHTML = name;
+	buildDomLate()
+	{
+		this.dom.innerHTML = this.name;
 
-		if (alignLeft)
-			this.dom.style.textAlign = 'left';
-		else
+		if (this.isOutput)
 			this.dom.style.textAlign = 'right';
+		else
+			this.dom.style.textAlign = 'left';
+
+		this.setFocusable(false);
 	}
 }

@@ -29,6 +29,17 @@ NodeGraph.Plug = class
 		this.type = type;
 
 		this.hover = false;
+
+		if (type == null || type.createSetting == null || !isInput)
+			this.setting = new NodeGraph.PlainTextSetting(node.tree,
+				this.name, !isInput);
+		else
+			this.setting = type.createSetting(this);
+
+		this.node.input.addSetting(this.setting);
+		this.setting.plug = this;
+
+		console.log(this);
 	}
 
 	/*
@@ -119,10 +130,15 @@ NodeGraph.Plug = class
 		if (this._x != null)
 			return this._x;
 
+		/*
 		if (this.isInput)
 			return this.node.posSmooth.x;
 
 		return this.node.posSmooth.x + this.node.width;
+		*/
+
+		return this.node.input.plugPositions()[this.isInput ? 'inputs'
+			: 'outputs'].filter(o => o.plug === this)[0].x;
 	}
 
 	/*
@@ -133,6 +149,7 @@ NodeGraph.Plug = class
 		if (this._y != null)
 			return this._y;
 
+		/*
 		let list = this.isInput ?
 			this.node.inputPlugs : this.node.outputPlugs;
 
@@ -142,6 +159,10 @@ NodeGraph.Plug = class
 			* this.node.tree.theme.plugSpacing
 			- (list.length + 1)
 			* this.node.tree.theme.plugSpacing / 2;
+		*/
+
+		return this.node.input.plugPositions()[this.isInput ? 'inputs'
+			: 'outputs'].filter(o => o.plug === this)[0].y;
 	}
 
 	/*
@@ -185,26 +206,5 @@ NodeGraph.Plug = class
 
 		ctx.lineWidth = plugBorderSize;
 		ctx.stroke();
-
-		let anyHover = false;
-		this.node.forEachPlug(plug => anyHover |= plug.hover);
-
-		if (anyHover)
-		{
-			ctx.fillStyle = this.node.tree.theme.plugFontColor;
-			ctx.font = this.node.tree.theme.plugFontSize * zoom + 'px '
-				+ this.node.tree.theme.plugFontFamily;
-			ctx.textAlign = this.isInput ? 'left' : 'right';
-			ctx.textBaseline = 'middle';
-
-			let x = pos.x;
-
-			if (this.isInput)
-				x += radius + plugBorderSize + 3 * zoom;
-			else
-				x -= radius + plugBorderSize + 3 * zoom;
-
-			ctx.fillText(this.name, x, pos.y);
-		}
 	}
 }
