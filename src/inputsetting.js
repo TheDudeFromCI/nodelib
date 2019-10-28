@@ -5,7 +5,7 @@ NodeGraph.InputSetting = class
 		this.tree = tree;
 		this.name = name;
 		this.lineHeight = 1;
-		this.minWidth = 50;
+		this.minWidth = 80;
 		this.focusable = true;
 		this.isOutput = isOutput;
 		this.filled = false;
@@ -60,8 +60,9 @@ NodeGraph.InputSetting = class
 		{
 			rect = {x: rect.x, y: rect.y, width: rect.width, height: rect.height};
 
-			rect.width /= 2;
-			rect.x += rect.width;
+			let q = rect.width / 3;
+			rect.width -= q;
+			rect.x += q;
 		}
 
 		let borderRadius = 4 * zoom;
@@ -157,6 +158,21 @@ NodeGraph.InputSetting = class
 		}
 	}
 
+	get recommendedWidth()
+	{
+		let c = this.tree.canvas;
+		let ctx = c.getContext("2d");
+		ctx.save();
+
+		ctx.font = this.tree.theme.plugFontSize * this.tree.camera.zoomSmooth
+			+ 'px ' + this.tree.theme.plugFontFamily;
+		let w = ctx.measureText(this.name).width + 20;
+
+		ctx.restore();
+
+		return Math.max(w * 3, this.minWidth / 2 * 3);
+	}
+
 	get hasName()
 	{
 		if (this.dom == null)
@@ -232,7 +248,6 @@ NodeGraph.ColorSetting = class extends NodeGraph.InputSetting
 	}
 }
 
-
 NodeGraph.RangeSetting = class extends NodeGraph.InputSetting
 {
 	constructor(tree, name, min = 0, max = 1, value = 1, step = 1)
@@ -260,5 +275,28 @@ NodeGraph.RangeSetting = class extends NodeGraph.InputSetting
 	{
 		let html = document.getElementsByTagName('html')[0];
 		html.style.cssText = '--nodegraph-sliderSize: ' + (25 * zoom) + 'px';
+	}
+}
+
+NodeGraph.DropdownSetting = class extends NodeGraph.InputSetting
+{
+	constructor(tree, name, options = [])
+	{
+		super(tree, name, 'select', false);
+
+		this.options = options;
+
+		this.buildDom(this.domType);
+	}
+
+	buildDomLate()
+	{
+		for (let op of this.options)
+		{
+			let elem = document.createElement('option');
+			this.dom.appendChild(elem);
+
+			elem.innerHTML = op;
+		}
 	}
 }

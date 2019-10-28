@@ -198,3 +198,23 @@ input.nodegraph-inputsetting[type="range"]::-moz-range-thumb {
 	background: #4CAF50;
 	cursor: pointer;
 }
+
+select.nodegraph-inputsetting {
+	background-color: rgba(255, 255, 255, 0.1);
+	color: #AAAAAA;
+
+	-webkit-transition: .2s;
+	transition: background-color .2s;
+
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+}
+
+select.nodegraph-inputsetting:hover {
+	background-color: rgba(255, 255, 255, 0.2);
+}
+
+select.nodegraph-inputsetting:hover option {
+	color: black;
+}

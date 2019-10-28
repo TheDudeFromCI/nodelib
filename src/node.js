@@ -62,6 +62,8 @@ NodeGraph.Node = class
 			if (type.onInit != null)
 				type.onInit(this);
 		}
+
+		this._width = Math.max(this.width, this.input.recommendedWidth);
 	}
 
 	/*
@@ -213,8 +215,7 @@ NodeGraph.Node = class
 		let title = 0;
 		{
 			let c = this.tree.canvas;
-			var ctx = c.getContext("2d");
-			
+			let ctx = c.getContext("2d");
 			ctx.save();
 
 			ctx.font = this.tree.theme.headerFontSize + 'px '

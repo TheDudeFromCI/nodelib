@@ -108,6 +108,16 @@ NodeGraph.Input = class
 		return w;
 	}
 
+	get recommendedWidth()
+	{
+		let w = 0;
+
+		for (let input of this.settings)
+			w = Math.max(w, input.recommendedWidth);
+
+		return w;
+	}
+
 	destroy()
 	{
 		for (let input of this.settings)

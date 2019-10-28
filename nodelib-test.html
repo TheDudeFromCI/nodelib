@@ -123,6 +123,24 @@
 					connectionColor: '#AAAA44',
 				}
 
+				let textureType =
+				{
+					plugColor: '#44AA44',
+
+					createSetting: function(plug)
+					{
+						return new NodeGraph.DropdownSetting(plug.node.tree,
+							plug.name, ['Diffuse', 'Normal', 'Specular', 'Metallic']);
+					},
+
+					canConnectTo: function(type)
+					{
+						return type === this;
+					},
+
+					connectionColor: '#44AA44',
+				}
+
 				let colorBlendNode =
 				{
 					name: 'Color Blend',
@@ -170,6 +188,7 @@
 					onInit: function(node)
 					{
 						node.addInput('UV', uvType);
+						node.addInput('Texture', textureType);
 						node.addOutput('Color', colorType);
 					}
 				}

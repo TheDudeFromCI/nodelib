@@ -170,7 +170,7 @@ NodeGraph.Theme = class
 		 * Sets, in world space pixels, how round the corners of the nodes should
 		 * be. If 0, corners are rectangular.
 		 */
-		this.nodeBorderRadius = 16;
+		this.nodeBorderRadius = 8;
 
 		/*
 		 * The size of the grid to use when moving nodes. Nodes are snapped to
