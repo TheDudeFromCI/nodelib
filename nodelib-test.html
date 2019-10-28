@@ -56,20 +56,32 @@
 				let converterColorNodesMenu = tree.createContextSubmenu('Converter',
 					colorNodesMenu);
 
+				let gradientConnection = function(connection)
+					{
+						let inp = connection.inputPlug;
+
+						if (inp.type == null)
+							return null;
+
+						return inp.type.connectionColor;
+					}
+
 				let colorType =
 				{
 					plugColor: '#4444AA',
 
 					createSetting: function(plug)
 					{
-						return new NodeGraph.TextInputSetting(plug.node.tree,
-							plug.name);
+						return new NodeGraph.ColorSetting(plug.node.tree,
+							plug.name, '#FFFFFF');
 					},
 
 					canConnectTo: function(type)
 					{
 						return type === this;
-					}
+					},
+
+					connectionColor: '#4444AA',
 				}
 
 				let numberType =
@@ -78,15 +90,19 @@
 
 					createSetting: function(plug)
 					{
-						return new NodeGraph.PlainTextSetting(plug.node.tree,
-							plug.name, false);
+						return new NodeGraph.RangeSetting(plug.node.tree,
+							plug.name, 0, 1, 0.5, 0.0001);
 					},
 
 					canConnectTo: function(type)
 					{
 						return type === this
 							|| type === colorType;
-					}
+					},
+
+					connectionColor: '#AA4444',
+
+					connectionEndColor: gradientConnection,
 				}
 
 				let uvType =
@@ -102,7 +118,9 @@
 					canConnectTo: function(type)
 					{
 						return type === this;
-					}
+					},
+
+					connectionColor: '#AAAA44',
 				}
 
 				let colorBlendNode =

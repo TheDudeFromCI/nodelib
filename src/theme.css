@@ -157,3 +157,9 @@
 p.nodegraph-inputsetting {
 	color: #CCCCCC;
 }
+
+input.nodegraph-inputsetting[type="color"] {
+	background-color: transparent;
+	border-color: black;
+	border-width: 2px;
+}

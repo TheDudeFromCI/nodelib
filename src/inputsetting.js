@@ -12,7 +12,6 @@ NodeGraph.InputSetting = class
 		this.unfocusable = false;
 
 		this.domType = domType;
-		this.buildDom(domType);
 	}
 
 	buildDom(type)
@@ -135,6 +134,8 @@ NodeGraph.TextInputSetting = class extends NodeGraph.InputSetting
 	{
 		super(tree, name, 'input', false);
 		this.minWidth = 150;
+
+		this.buildDom(this.domType);
 	}
 
 	buildDomLate()
@@ -151,6 +152,8 @@ NodeGraph.TextBlockSetting = class extends NodeGraph.InputSetting
 
 		this.rows = rows;
 		this.minWidth = 200;
+
+		this.buildDom(this.domType);
 	}
 
 	buildDomLate()
@@ -167,6 +170,9 @@ NodeGraph.PlainTextSetting = class extends NodeGraph.InputSetting
 	{
 		super(tree, name, 'p', isOutput);
 		this.unfocusable = true;
+
+		this.setFocusable(false);
+		this.buildDom(this.domType);
 	}
 
 	buildDomLate()
@@ -177,7 +183,48 @@ NodeGraph.PlainTextSetting = class extends NodeGraph.InputSetting
 			this.dom.style.textAlign = 'right';
 		else
 			this.dom.style.textAlign = 'left';
+	}
+}
 
-		this.setFocusable(false);
+NodeGraph.ColorSetting = class extends NodeGraph.InputSetting
+{
+	constructor(tree, name, value = '#FFFFFF')
+	{
+		super(tree, name, 'input', false);
+
+		this.value = value;
+
+		this.buildDom(this.domType);
+	}
+
+	buildDomLate()
+	{
+		this.dom.setAttribute("type", "color");
+		this.dom.setAttribute("value", this.value);
+	}
+}
+
+
+NodeGraph.RangeSetting = class extends NodeGraph.InputSetting
+{
+	constructor(tree, name, min = 0, max = 1, value = 1, step = 1)
+	{
+		super(tree, name, 'input', false);
+
+		this.min = min;
+		this.max = max;
+		this.step = step;
+		this.value = value;
+
+		this.buildDom(this.domType);
+	}
+
+	buildDomLate()
+	{
+		this.dom.setAttribute("type", "range");
+		this.dom.setAttribute("min", this.min);
+		this.dom.setAttribute("max", this.max);
+		this.dom.setAttribute("step", this.step);
+		this.dom.setAttribute("value", this.value);
 	}
 }

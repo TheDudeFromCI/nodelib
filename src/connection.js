@@ -37,13 +37,48 @@ NodeGraph.Connection = class
 	}
 
 	/*
+	 * Gets the color of the end connection, if using a gradient connection.
+	 * This color is determined by the "connectionEndColor(connection)"
+	 * property of the output plug type, if defined. If not defined, or
+	 * returns null, the "connnectionColor" property of this object is return;
+	 */
+	get connectionEndColor()
+	{
+		if (this.outputPlug.type == null
+			|| this.outputPlug.type.connectionEndColor == null)
+			return this.connectionColor;
+
+		let col = this.outputPlug.type.connectionEndColor(this);
+
+		if (col == null)
+			return this.connectionColor;
+
+		return col;
+	}
+
+	/*
 	 * Renders this connection to a canvas. This function should only be
 	 * called internally.
 	 */
 	render(ctx)
 	{
 		ctx.lineWidth = this.tree.theme.connectionWidth;
-		ctx.strokeStyle = this.connectionColor;
+
+		let colA = this.connectionColor;
+		let colB = this.connectionEndColor;
+
+		if (colA == colB)
+			ctx.strokeStyle = this.connectionColor;
+		else
+		{
+			let pos1 = this.outputPlug.pos.toScreen(this.tree.camera);
+			let pos2 = this.inputPlug.pos.toScreen(this.tree.camera);
+
+			let grd = ctx.createLinearGradient(pos1.x, pos1.y, pos2.x, pos2.y);
+			grd.addColorStop(0, colA);
+			grd.addColorStop(1, colB);
+			ctx.strokeStyle = grd;
+		}
 
 		this.tree.theme.connectionStyle(this.outputPlug, this.inputPlug, ctx,
 			this.tree.camera);

@@ -38,8 +38,6 @@ NodeGraph.Plug = class
 
 		this.node.input.addSetting(this.setting);
 		this.setting.plug = this;
-
-		console.log(this);
 	}
 
 	/*
