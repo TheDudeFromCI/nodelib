@@ -1,0 +1,220 @@
+.nodegraph-popup {
+	position: absolute;
+	display: inline-block;
+	z-index: 2;
+}
+
+.nodegraph-popuptext {
+	visibility: hidden;
+	width: 150px;
+	background-color: #555;
+	color: #fff;
+	text-align: center;
+	border-radius: 6px;
+	padding: 5px;
+	position: absolute;
+	z-index: 1;
+	bottom: 125%;
+	left: 50%;
+	margin-left: -80px;
+}
+
+.nodegraph-greyout {
+	color: #333333;
+}
+
+.nodegraph-popup .nodegraph-popuptext::after {
+	content: "";
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	margin-left: -5px;
+	border-width: 5px;
+	border-style: solid;
+	border-color: #555 transparent transparent transparent;
+}
+
+.nodegraph-popup .nodegraph-show {
+	visibility: visible;
+	-webkit-animation: nodegraph-fadeIn .4s;
+	animation: nodegraph-fadeIn .4s
+}
+
+@-webkit-keyframes nodegraph-fadeIn {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+@keyframes nodegraph-fadeIn {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+.nodegraph-menuoption {
+	margin-top: 2px;
+	margin-bottom: 2px;
+	margin-left: auto;
+	margin-right: auto;
+	border-radius: 5px;
+	background-color: transparent;
+
+	display: inline-block;
+
+	width: 90%;
+	height: 20px;
+
+	text-align: left;
+	padding-left: 5px;
+
+	transition: transform .05s;
+}
+
+.nodegraph-menuoption:hover:not(.nodegraph-greyout) {
+	background-color: #AAAAAA;
+	transform: scale(1.08);
+}
+
+.nodegraph-tooltip {
+	position: absolute;
+	display: none;
+	text-align: left;
+	border-radius: 0px;
+	padding: 5px;
+	margin-top: -50px;
+	margin-left: 160px;
+	border-radius: 5px;
+	background-color: #555555;
+	width: 275px;
+}
+
+.nodegraph-submenu {
+	position: absolute;
+	display: none;
+	text-align: left;
+	border-radius: 0px;
+	padding: 5px;
+	padding-left: 12px;
+	margin-top: -27px;
+	margin-left: 158px;
+	border-radius: 5px;
+	background-color: #555555;
+	width: 150px;
+}
+
+.nodegraph-menuoption:hover + .nodegraph-tooltip {
+	display: block;
+}
+
+.nodegraph-menuoption:hover + .nodegraph-submenu {
+	display: block;
+}
+
+.nodegraph-menuArrow {
+	display: inline-block;
+	opacity: 0%;
+	position: absolute;
+	top: auto;
+	left: calc(100% - 5px);
+	width: 20px;
+	height: 30px;
+
+	margin: 0px;
+	padding: 0px;
+}
+
+.nodegraph-menuArrow:hover + .nodegraph-submenu {
+	display: block;
+}
+
+.nodegraph-submenu:hover {
+	display: block;
+}
+
+.nodegraph-tooltip:empty {
+   display: none !important;
+}
+
+.nodegraph-unselectable {
+   -moz-user-select: -moz-none;
+   -khtml-user-select: none;
+   -webkit-user-select: none;
+
+   -ms-user-select: none;
+   user-select: none;
+}
+
+.nodegraph-inputsetting {
+	position: absolute;
+	display: block;
+	z-index: 1;
+	margin: 0px;
+	padding: 0px;
+	border: none;
+	outline: none;
+	box-sizing: border-box;
+}
+
+p.nodegraph-inputsetting {
+	color: #CCCCCC;
+}
+
+input.nodegraph-inputsetting[type="color"] {
+	background-color: rgba(255, 255, 255, 0.1);
+
+	-webkit-transition: .2s;
+	transition: background-color .2s;
+}
+
+input.nodegraph-inputsetting[type="color"]:hover {
+	background-color: rgba(255, 255, 255, 0.2);
+}
+
+input.nodegraph-inputsetting[type="range"] {
+	-webkit-appearance: none;
+	appearance: none;
+	background-color: rgba(255, 255, 255, 0.2);
+
+	opacity: 0.7;
+	-webkit-transition: .2s;
+	transition: opacity .2s;
+}
+
+input.nodegraph-inputsetting[type="range"]:hover {
+	opacity: 1;
+}
+
+input.nodegraph-inputsetting[type="range"]::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: calc(var(--nodegraph-sliderSize) * 0.25);
+	height: var(--nodegraph-sliderSize);
+	background: #4CAF50;
+	cursor: pointer;
+}
+
+input.nodegraph-inputsetting[type="range"]::-moz-range-thumb {
+	width: calc(var(--nodegraph-sliderSize) * 0.25);
+	height: var(--nodegraph-sliderSize);
+	background: #4CAF50;
+	cursor: pointer;
+}
+
+select.nodegraph-inputsetting {
+	background-color: rgba(255, 255, 255, 0.1);
+	color: #AAAAAA;
+
+	-webkit-transition: .2s;
+	transition: background-color .2s;
+
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+}
+
+select.nodegraph-inputsetting:hover {
+	background-color: rgba(255, 255, 255, 0.2);
+}
+
+select.nodegraph-inputsetting:hover option {
+	color: black;
+}
