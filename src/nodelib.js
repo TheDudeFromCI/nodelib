@@ -4,3 +4,15 @@
  * and control settings.
  */
 var NodeGraph = {};
+
+/*
+ * This package is a collection of rendering styles which can be used for
+ * rendering connections to the canvas.
+ */
+NodeGraph.ConnectionStyle = {};
+
+/*
+ * A collection of utility functions which are commonly used within the node
+ * graph library.
+ */
+NodeGraph.Utils = {};

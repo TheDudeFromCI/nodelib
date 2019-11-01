@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+	<header>
+		<title>NodeLib Test</title>
+		<meta charset ="UTF-8"/>
+
+		<link rel="stylesheet" type="text/css" href="build/theme.css"/>
+
+		<style type="text/css">
+			html {
+				overflow: hidden;
+			}
+
+			html, body {
+				height: 100%;
+
+				margin: 0;
+				padding: 0;
+			}
+
+			#node-canvas {
+				height: 100%;
+				width: 100%;
+				font-size: 0;
+
+				margin: 0;
+				padding: 0;
+			}
+		</style>
+
+		<script src="build/nodelib.min.js"></script>
+
+		<script>
+			function onLoad()
+			{
+				let canvas = document.getElementById('node-canvas');
+
+				theme = new NodeGraph.Theme();
+				tree = new NodeGraph.Tree(canvas, theme);
+
+				let colorNodesMenu = tree.createContextSubmenu('Color');
+				let mathNodesMenu = tree.createContextSubmenu('Math');
+				let textureNodesMenu = tree.createContextSubmenu('Texture');
+				let converterColorNodesMenu = tree.createContextSubmenu('Converter',
+					colorNodesMenu);
+
+				let gradientConnection = function(connection)
+					{
+						let inp = connection.inputPlug;
+
+						if (inp.type == null)
+							return null;
+
+						return inp.type.connectionColor;
+					}
+
+				let colorType =
+				{
+					plugColor: '#4444AA',
+
+					createSetting: function(plug)
+					{
+						return new NodeGraph.ColorSetting(plug.node.tree,
+							plug.name, '#FFFFFF');
+					},
+
+					canConnectTo: function(type)
+					{
+						return type === this;
+					},
+
+					connectionColor: '#4444AA',
+				}
+
+				let numberType =
+				{
+					plugColor: '#AA4444',
+
+					createSetting: function(plug)
+					{
+						return new NodeGraph.RangeSetting(plug.node.tree,
+							plug.name, 0, 1, 0.5, 0.0001);
+					},
+
+					canConnectTo: function(type)
+					{
+						return type === this
+							|| type === colorType;
+					},
+
+					connectionColor: '#AA4444',
+
+					connectionEndColor: gradientConnection,
+				}
+
+				let uvType =
+				{
+					plugColor: '#AAAA44',
+
+					createSetting: function(plug)
+					{
+						return new NodeGraph.PlainTextSetting(plug.node.tree,
+							plug.name, false);
+					},
+
+					canConnectTo: function(type)
+					{
+						return type === this;
+					},
+
+					connectionColor: '#AAAA44',
+				}
+
+				let textureType =
+				{
+					plugColor: '#44AA44',
+
+					createSetting: function(plug)
+					{
+						return new NodeGraph.DropdownSetting(plug.node.tree,
+							plug.name, ['Diffuse', 'Normal', 'Specular', 'Metallic']);
+					},
+
+					canConnectTo: function(type)
+					{
+						return type === this;
+					},
+
+					connectionColor: '#44AA44',
+				}
+
+				let booleanType =
+				{
+					plugColor: '#AA4444',
+
+					createSetting: function(plug)
+					{
+						return new NodeGraph.CheckboxSetting(plug.node.tree,
+							plug.name);
+					},
+
+					canConnectTo: function(type)
+					{
+						return type === this;
+					},
+
+					connectionColor: '#AA4444',
+				}
+
+				let colorBlendNode =
+				{
+					name: 'Color Blend',
+
+					onInit: function(node)
+					{
+						node.addInput('Color 1', colorType);
+						node.addInput('Color 2', colorType);
+						node.addInput('Mix', numberType);
+						node.addOutput("Color", colorType);
+					}
+				}
+
+				let rgbaSplitNode =
+				{
+					name: 'RGBA Split',
+
+					onInit: function(node)
+					{
+						node.addInput('Color', colorType);
+						node.addOutput('R', numberType);
+						node.addOutput('G', numberType);
+						node.addOutput('B', numberType);
+						node.addOutput('A', numberType);
+					}
+				}
+
+				let rgbToHsvNode =
+				{
+					name: 'RGB To HSV',
+
+					onInit: function(node)
+					{
+						node.addInput('RGB', colorType);
+						node.addOutput('Hue', numberType);
+						node.addOutput('Saturation', numberType);
+						node.addOutput('Value', numberType);
+					}
+				}
+
+				let sampleTextureNode =
+				{
+					name: 'Sample Texture',
+
+					onInit: function(node)
+					{
+						node.addInput('UV', uvType);
+						node.addInput('Texture', textureType);
+						node.addInput('sRGB', booleanType);
+						node.addOutput('Color', colorType);
+					}
+				}
+
+				let pixelInfoNode =
+				{
+					name: 'Pixel Info',
+
+					onInit: function(node)
+					{
+						node.addOutput('UV', uvType);
+					}
+				}
+
+				tree.addPopupOption('Color Blend',
+					'Used to mix two colors based on a percentage.',
+					colorNodesMenu).onclick = event =>
+						tree.addNode(buildPos(event), colorBlendNode);
+
+				tree.addPopupOption('RGBA Split',
+					'Used to split a color into seperate RGBA channels.',
+					colorNodesMenu).onclick = event =>
+						tree.addNode(buildPos(event), rgbaSplitNode);
+
+				tree.addPopupOption('RGB to HSV',
+					'Used to convert an RGB color into seperate HSV channels.',
+					converterColorNodesMenu).onclick = event =>
+						tree.addNode(buildPos(event), rgbToHsvNode);
+
+				tree.addPopupOption('Sample Texture',
+					'Samples a texture at a given UV coord.',
+					textureNodesMenu).onclick = event =>
+						tree.addNode(buildPos(event), sampleTextureNode);
+
+				tree.addPopupOption('Pixel Info',
+					'Information about the current pixel.',
+					textureNodesMenu).onclick = event =>
+						tree.addNode(buildPos(event), pixelInfoNode);
+			}
+
+			function buildPos(event)
+			{
+				let x = event.clientX;
+				let y = event.clientY;
+				return new NodeGraph.Position(x, y, false).toWorld(tree.camera);
+			}
+		</script>
+	</header>
+	
+	<body onload="onLoad()">
+		<canvas id="node-canvas">
+			Your browser does not support HTML5 canvas, and is unable to view this web application. We recommend using Firefox or Chrome with JavaScript enabled.
+		</canvas>
+	</body>
+</html>

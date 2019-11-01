@@ -35,9 +35,9 @@ NodeGraph.Camera = class
 
 		delta = delta / this.theme.cameraSmoothing;
 
-		this.xSmooth = l(this.xSmooth, this.x, delta);
-		this.ySmooth = l(this.ySmooth, this.y, delta);
-		this.zoomSmooth = l(this.zoomSmooth, this.zoom, delta);
+		this.xSmooth = lerp(this.xSmooth, this.x, delta);
+		this.ySmooth = lerp(this.ySmooth, this.y, delta);
+		this.zoomSmooth = lerp(this.zoomSmooth, this.zoom, delta);
 	}
 
 	/*

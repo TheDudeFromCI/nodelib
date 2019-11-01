@@ -1,10 +1,4 @@
 /*
- * A collection of utility functions which are commonly used within the node
- * graph library.
- */
-NodeGraph.Utils = {};
-
-/*
  * Interpolates between two numberical values based on the percentage, t. The
  * lerping is clamped to be within the range of a to b.
  *

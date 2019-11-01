@@ -1,10 +1,4 @@
 /*
- * This package is a collection of rendering styles which can be used for
- * rendering connections to the canvas.
- */
-NodeGraph.ConnectionStyle = {};
-
-/*
  * Renders a straight line between two plugs.
  */
 NodeGraph.ConnectionStyle.Linear = function(outputPlug, inputPlug, ctx, camera)
