@@ -2667,8 +2667,10 @@ NodeGraph.Tree = class {
 
         this.nodes.forEach(node => node.input.setFocusable(false));
 
-        let x = event.clientX;
-        let y = event.clientY;
+        let eventPos = this.eventPos(event);
+        let x = eventPos.x;
+        let y = eventPos.y;
+
         this.lastMouseX = x;
         this.lastMouseY = y;
 
@@ -2721,8 +2723,9 @@ NodeGraph.Tree = class {
     onMouseMove(event) {
         event.preventDefault();
 
-        let x = event.clientX;
-        let y = event.clientY;
+        let eventPos = this.eventPos(event);
+        let x = eventPos.x;
+        let y = eventPos.y;
 
         let hoverPlug = null;
 
@@ -2837,6 +2840,25 @@ NodeGraph.Tree = class {
         this.firstMove = false;
     }
 
+    eventPos(event) {
+        let elem = this.canvas;
+        let top = 0;
+        let left = 0;
+
+        if (elem.getClientRects().length) {
+            let rect = elem.getBoundingClientRect();
+            let win = elem.ownerDocument.defaultView;
+
+            top = rect.top + win.pageYOffset;
+            left = rect.left + win.pageXOffset;
+        }
+
+        return {
+            x: event.pageX - left,
+            y: event.pageY - top
+        };
+    }
+
 	/*
 	 * An internal method called to handle mouse up events.
 	 */
@@ -2845,8 +2867,9 @@ NodeGraph.Tree = class {
 
         this.nodes.forEach(node => node.input.setFocusable(true));
 
-        let x = event.clientX;
-        let y = event.clientY;
+        let eventPos = this.eventPos(event);
+        let x = eventPos.x;
+        let y = eventPos.y;
 
         this.mouseDown = false;
         this.cameraDrag = false;
@@ -2891,8 +2914,9 @@ NodeGraph.Tree = class {
     }
 
     onClick(event) {
-        let x = event.clientX;
-        let y = event.clientY;
+        let eventPos = this.eventPos(event);
+        let x = eventPos.x;
+        let y = eventPos.y;
         let justClicked = null;
 
         this.nodes.forEach(node => {
