@@ -1,7 +1,9 @@
 .nodegraph-popup {
 	position: absolute;
 	display: inline-block;
-	z-index: 2;
+    z-index: 2;
+    
+    box-sizing: content-box;
 }
 
 .nodegraph-popuptext {
@@ -17,6 +19,8 @@
 	bottom: 125%;
 	left: 50%;
 	margin-left: -80px;
+
+    box-sizing: content-box;
 }
 
 .nodegraph-greyout {
@@ -32,6 +36,8 @@
 	border-width: 5px;
 	border-style: solid;
 	border-color: #555 transparent transparent transparent;
+
+    box-sizing: content-box;
 }
 
 .nodegraph-popup .nodegraph-show {
@@ -67,6 +73,8 @@
 	padding-left: 5px;
 
 	transition: transform .05s;
+
+    box-sizing: content-box;
 }
 
 .nodegraph-menuoption:hover:not(.nodegraph-greyout) {
@@ -85,6 +93,8 @@
 	border-radius: 5px;
 	background-color: #555555;
 	width: 275px;
+
+    box-sizing: content-box;
 }
 
 .nodegraph-submenu {
@@ -98,7 +108,9 @@
 	margin-left: 158px;
 	border-radius: 5px;
 	background-color: #555555;
-	width: 150px;
+    width: 150px;
+    
+    box-sizing: content-box;
 }
 
 .nodegraph-menuoption:hover + .nodegraph-tooltip {
@@ -119,7 +131,9 @@
 	height: 30px;
 
 	margin: 0px;
-	padding: 0px;
+    padding: 0px;
+    
+    box-sizing: content-box;
 }
 
 .nodegraph-menuArrow:hover + .nodegraph-submenu {
