@@ -2228,9 +2228,7 @@ NodeGraph.Tree = class {
         canvas.addEventListener('mouseup', e => this.onMouseUp(e));
         //canvas.addEventListener('mouseout', e => this.onMouseExit(e));
         canvas.addEventListener('keyup', e => this.onKeyUp(e));
-
-        canvas.addEventListener('contextmenu', e => this.onContextMenu(e),
-            false);
+        canvas.addEventListener('contextmenu', e => this.onContextMenu(e), false);
         canvas.addEventListener('mousewheel', e => this.onScroll(e));
 
         this.buildPopup();
@@ -2662,6 +2660,8 @@ NodeGraph.Tree = class {
 	 * An internal method called to handle mouse down events.
 	 */
     onMouseDown(event) {
+        event.preventDefault();
+
         if (event.which != 3)
             this.popuptext.classList.toggle("nodegraph-show", false);
 
@@ -2719,6 +2719,8 @@ NodeGraph.Tree = class {
 	 * An internal method called to handle mouse move events.
 	 */
     onMouseMove(event) {
+        event.preventDefault();
+
         let x = event.clientX;
         let y = event.clientY;
 
@@ -2839,6 +2841,8 @@ NodeGraph.Tree = class {
 	 * An internal method called to handle mouse up events.
 	 */
     onMouseUp(event) {
+        event.preventDefault();
+
         this.nodes.forEach(node => node.input.setFocusable(true));
 
         let x = event.clientX;

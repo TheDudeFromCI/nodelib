@@ -1,3 +1,5 @@
+Write-Output "Compressing project..."
+
 if (-not (Test-Path -Path 'build' -PathType Container)) {
     mkdir build
 }
