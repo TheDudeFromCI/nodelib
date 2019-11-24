@@ -1,14 +1,13 @@
-if (-not (Test-Path -Path 'build' -PathType Container))
-{
+if (-not (Test-Path -Path 'build' -PathType Container)) {
     mkdir build
 }
 
-rm build/*
+Remove-Item build/*
 
-cp src/nodelib.js build
+Copy-Item src/nodelib.js build
 
-cat (Get-Item 'src/*.js' | where Name -notmatch 'nodelib\.js') | ac build/nodelib.js
-cp 'src/*.css' build
+Get-Content (Get-Item 'src/*.js' | Where-Object Name -notmatch 'nodelib\.js') | Add-Content build/nodelib.js
+Copy-Item 'src/*.css' build
 
 minify build/nodelib.js --outFile build/nodelib.min.js
 
